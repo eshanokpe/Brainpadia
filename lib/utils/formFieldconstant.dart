@@ -7,10 +7,11 @@ class FormFieldConstant extends StatefulWidget {
   final TextEditingController controller;
   final TextInputType keyboardType;
   final bool obscureText;
-  final Function validateText;
+  final Function? validateText;
   final void Function(String?)? onSaved;
   //final FocusNode focusNode;
   final bool manual;
+  final bool? disable;
 
   const FormFieldConstant(
       {Key? key,
@@ -19,8 +20,9 @@ class FormFieldConstant extends StatefulWidget {
       this.manual = false,
       //this.focusNode ,
       this.obscureText = false,
-      required this.validateText,
+      this.validateText,
       required this.keyboardType,
+      this.disable,
       required this.controller})
       : super(key: key);
 
@@ -39,7 +41,7 @@ class _FormFieldConstantState extends State<FormFieldConstant> {
     widget.controller.addListener(() {
       if (mounted) {
         String text = widget.controller.text;
-        String returnedText = widget.validateText(text.trim());
+        String returnedText = widget.validateText!(text.trim());
         if (validateText != returnedText) {
           setState(() {
             validateText = returnedText;
@@ -64,6 +66,7 @@ class _FormFieldConstantState extends State<FormFieldConstant> {
           border: Border.all(color: ColorConstant.formbordercolor, width: 0)),
       child: TextFormField(
         // focusNode: widget.focusNode,
+        enabled: widget.disable,
         controller: widget.controller,
         keyboardType: widget.keyboardType,
         obscureText: obscureText,

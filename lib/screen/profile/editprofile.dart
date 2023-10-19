@@ -1,5 +1,7 @@
 import 'package:brainepadia/models/profileusermodel.dart';
+import 'package:brainepadia/utils/authValiator.dart';
 import 'package:brainepadia/utils/color_constant.dart';
+import 'package:brainepadia/utils/formFieldconstant.dart';
 import 'package:brainepadia/utils/image_constant.dart';
 import 'package:brainepadia/utils/math_utils.dart';
 import 'package:brainepadia/utils/providers.dart';
@@ -17,9 +19,18 @@ class _ProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     var getProfile = context.watch<Providers>().profileDetails;
-    print(getProfile.fullName);
-    //ProfileUserModel profile = ProfileUserModel.fromJson(getProfile);
-
+    TextEditingController firstNameController =
+        TextEditingController(text: getProfile.firstName!);
+    TextEditingController surNameController =
+        TextEditingController(text: getProfile.surName!);
+    String initialmiddleName = getProfile.middleName ?? '';
+    TextEditingController middleNameController =
+        TextEditingController(text: initialmiddleName);
+    TextEditingController emailController =
+        TextEditingController(text: getProfile.email ?? '');
+    TextEditingController phoneController =
+        TextEditingController(text: getProfile.phoneNumber ?? 'N/A');
+    
     return SafeArea(
       child: Scaffold(
 
@@ -88,7 +99,7 @@ class _ProfileState extends State<EditProfile> {
                     SizedBox(height: size.height / 50),
                     Text(
                       getProfile.fullName!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontFamily: 'Poppins',
                         color: Colors.black,
@@ -100,7 +111,7 @@ class _ProfileState extends State<EditProfile> {
               ),
             ),
             Align(
-                alignment: Alignment.topCenter,
+                alignment: Alignment.topLeft,
                 child: Padding(
                   padding: EdgeInsets.only(
                     top: getVerticalSize(
@@ -116,14 +127,15 @@ class _ProfileState extends State<EditProfile> {
                   child: Card(
                       //margin: EdgeInsets.all(10),
                       child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         height: size.height / 40,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'First Name',
@@ -134,25 +146,27 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.firstName!,
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: size.height / 40,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'FirstName',
+                              controller: firstNameController,
+                              keyboardType: TextInputType.text,
+                              // focusNode: pnode,
+                              onSaved: null,
+                              validateText: AuthValidator.validateName,
+                            ),
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: size.height / 40,
-                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              'Last Name',
+                              'Surname',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Poppins',
@@ -160,22 +174,24 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.surName!,
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: size.height / 40,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'Enter Surname',
+                              controller: surNameController,
+                              keyboardType: TextInputType.text,
+                              // focusNode: pnode,
+                              validateText: AuthValidator.validateName,
+                              onSaved: null,
+                            ),
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: size.height / 40,
-                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Middle Name',
@@ -186,12 +202,16 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.middleName ?? 'N/A',
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: size.height / 40,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'Enter Middle Name',
+                              controller: middleNameController,
+                              keyboardType: TextInputType.text,
+                              // focusNode: pnode,
+                              onSaved: null, validateText: null,
+                            ),
                           ],
                         ),
                       ),
@@ -200,8 +220,8 @@ class _ProfileState extends State<EditProfile> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Email',
@@ -212,22 +232,24 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.email ?? 'N/A',
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: size.height / 40,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'Enter Email Name',
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              // focusNode: pnode,
+                              disable: false,
+                              onSaved: null, validateText: null,
+                            ),
                           ],
                         ),
-                      ),
-                      SizedBox(
-                        height: size.height / 40,
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Phone Number',
@@ -238,12 +260,16 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.phoneNumber ?? 'N/A',
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: size.height / 40,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'Enter Phone Number',
+                              controller: phoneController,
+                              keyboardType: TextInputType.number,
+                              onSaved: null,
+                              validateText: null,
+                            ),
                           ],
                         ),
                       ),
