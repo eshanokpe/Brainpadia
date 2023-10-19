@@ -1,9 +1,13 @@
 import 'package:brainepadia/screen/authentication/login.dart';
+import 'package:brainepadia/screen/profile/profile.dart';
 import 'package:brainepadia/utils/color_constant.dart';
 import 'package:brainepadia/utils/dialog.dart';
 import 'package:brainepadia/utils/math_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'homepage.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key? key});
@@ -13,269 +17,162 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  pop() {
+    SystemNavigator.pop();
+  }
+
   DialogBox dialogBox = DialogBox();
+  int currentTabIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    currentTabIndex = 0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        dialogBox.options(
-            context, "Log Out", 'Are you sure you want to log out?', yes);
-        return false; // Return false to prevent going back
-      },
-      child: SafeArea(
-        child: Scaffold(
-          body: ListView(
-            children: [
-              Card(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: const Radius.circular(20),
-                    bottomRight: const Radius.circular(20),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ListTile(
-                      leading: const CircleAvatar(
-                        radius: 30,
-                        backgroundImage:
-                            AssetImage('assets/images/avatar_image.png'),
-                      ),
-                      title: Text(
-                        'John',
-                        style: TextStyle(
-                          color: ColorConstant.black900,
-                          fontSize: getFontSize(
-                            20,
-                          ),
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'johndoe@gmail.com',
-                        style: TextStyle(
-                          fontSize: getFontSize(
-                            14,
-                          ),
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                      trailing: Stack(
-                        children: [
-                          Image.asset('assets/images/notification_icon.png'),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 18.0),
-                      child: Text(
-                        'Brainepadia Coin',
-                        style: TextStyle(
-                          color: ColorConstant.gray700,
-                          fontSize: getFontSize(
-                            20,
-                          ),
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 18.0, right: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Current Balance',
-                            style: TextStyle(
-                              color: ColorConstant.gray500,
-                              fontSize: getFontSize(
-                                20,
-                              ),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '+130.62%',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 99, 203, 141),
-                              fontSize: getFontSize(
-                                20,
-                              ),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 18.0, right: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '40,059.83',
-                            style: TextStyle(
-                              color: ColorConstant.black900,
-                              fontSize: getFontSize(
-                                32,
-                              ),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '+ \$2,979.23%',
-                            style: TextStyle(
-                              color: const Color.fromARGB(255, 119, 119, 119),
-                              fontSize: getFontSize(
-                                20,
-                              ),
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 18.0, right: 15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Column(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ColorConstant.primaryColor,
-                                ),
-                                child: Image.asset('assets/images/send.png'),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                'Send',
-                                style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 119, 119, 119),
-                                  fontSize: getFontSize(
-                                    20,
-                                  ),
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ColorConstant.primaryColor,
-                                ),
-                                child: Image.asset('assets/images/receive.png'),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                'Send',
-                                style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 119, 119, 119),
-                                  fontSize: getFontSize(
-                                    20,
-                                  ),
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ColorConstant.primaryColor,
-                                ),
-                                child:
-                                    Image.asset('assets/images/transfer.png'),
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Text(
-                                'Send',
-                                style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 119, 119, 119),
-                                  fontSize: getFontSize(
-                                    20,
-                                  ),
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                        child: const Text('Log out'),
-                        onPressed: () {
-                          dialogBox.options(context, "Log Out",
-                              'Are you sure you want to log out?', yes);
-                        },
-                      ),
-                    ),
-                  ],
+    Orientation orientation = MediaQuery.of(context).orientation;
+    final height = orientation == Orientation.portrait
+        ? MediaQuery.of(context).size.height
+        : MediaQuery.of(context).size.width;
+    final width = orientation == Orientation.portrait
+        ? MediaQuery.of(context).size.width
+        : MediaQuery.of(context).size.height;
+
+    final pages = <Widget>[
+      Homepage(),
+      Text('width'),
+      Text('width'),
+      const Profile(),
+    ];
+
+    AppBar? appBar() {
+      switch (currentTabIndex) {
+        case 0:
+          return AppBar(
+            title:
+                Text('GAPhub', style: TextStyle(fontWeight: FontWeight.bold)),
+            centerTitle: true,
+            automaticallyImplyLeading: false,
+          );
+          break;
+        case 1:
+          break;
+        case 2:
+          return AppBar(
+            title: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text('Asset Acquisition',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: width * .03,
+                        fontWeight: FontWeight.w600)),
+                Text('The only path that leads to financial independence',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                      fontSize: width * .023,
+                    )),
+              ],
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Image.asset(
+                  'assets/images/tracking.png',
+                  color: Colors.black,
                 ),
               ),
             ],
+            elevation: 5,
+            leading: Icon(
+              Icons.ac_unit,
+              color: Colors.white,
+            ),
+            backgroundColor: Colors.white,
+          );
+
+          break;
+        case 3:
+          break;
+        case 4:
+          break;
+        default:
+          return null;
+      }
+      return null;
+    }
+
+    PageStorageBucket bucket = PageStorageBucket();
+
+    final bottomItems = <BottomNavigationBarItem>[
+      BottomNavigationBarItem(
+          icon: Image.asset(
+            'assets/icons/home_inactive.png',
+            height: height * .03,
           ),
+          activeIcon: Image.asset(
+            'assets/icons/home_active.png',
+            height: height * .04,
+          ),
+          label: 'Home'),
+      BottomNavigationBarItem(
+          icon: Image.asset(
+            'assets/icons/converter_inactive.png',
+            height: height * .03,
+          ),
+          activeIcon: Image.asset(
+            'assets/icons/converter_active.png',
+            height: height * .04,
+          ),
+          label: 'Converter'),
+      BottomNavigationBarItem(
+          icon: Image.asset(
+            'assets/icons/transaction_inactive.png',
+            height: height * .03,
+          ),
+          activeIcon: Image.asset(
+            'assets/icons/transaction_inactive.png',
+            height: height * .04,
+          ),
+          label: 'Transaction'),
+      BottomNavigationBarItem(
+          icon: Image.asset(
+            'assets/icons/profile_inactive.png',
+            height: height * .03,
+          ),
+          activeIcon: Image.asset(
+            'assets/icons/profile_active.png',
+            height: height * .04,
+          ),
+          label: 'Profile')
+    ];
+
+    return Scaffold(
+      // appBar: appBar(),
+      body: WillPopScope(
+        onWillPop: () {
+          return dialogBox.options(
+              context, 'Exit', 'Are you sure you want to exit?', pop);
+        },
+        child: PageStorage(
+          child: pages[currentTabIndex],
+          bucket: bucket,
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedFontSize: width * .04,
+        unselectedFontSize: width * .03,
+        items: bottomItems,
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentTabIndex,
+        onTap: (index) {
+          setState(() {
+            currentTabIndex = index;
+          });
+        },
       ),
     );
   }

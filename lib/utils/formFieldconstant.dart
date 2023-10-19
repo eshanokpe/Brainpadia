@@ -56,7 +56,7 @@ class _FormFieldConstantState extends State<FormFieldConstant> {
     final width = orientation == Orientation.portrait
         ? MediaQuery.of(context).size.width
         : MediaQuery.of(context).size.height;
-   
+
     return Container(
       decoration: BoxDecoration(
           color: ColorConstant.formbgcolor, // Set the background color
@@ -73,7 +73,7 @@ class _FormFieldConstantState extends State<FormFieldConstant> {
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: TextStyle(
-            color: ColorConstant.formbordercolor, // Set the hint text color
+            color: ColorConstant.gray503, // Set the hint text color
           ),
           errorStyle: TextStyle(
               fontSize: width * .03, color: Theme.of(context).primaryColor),

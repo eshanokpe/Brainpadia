@@ -19,33 +19,35 @@ Error errorFromJson(String str) => Error.fromJson(json.decode(str));
 String errorToJson(Error data) => json.encode(data.toJson());
 
 class Loginusermodel {
-  Loginusermodel({
-    this.userId,
-    this.firstName,
-    this.lastName,
-    this.email,
-    this.phoneNumber,
-  });
-  int? userId;
+  Loginusermodel(
+      {this.userId,
+      this.firstName,
+      this.lastName,
+      this.email,
+      this.phoneNumber,
+      this.profileId});
+  String? userId;
   String? firstName;
-  String? lastName;
+  String? lastName; 
   String? email;
   String? phoneNumber;
+  int? profileId;
 
   factory Loginusermodel.fromJson(Map<String, dynamic> json) => Loginusermodel(
-        userId: json['userId'],
-        firstName: json["firstName"],
-        lastName: json["lastName"],
-        email: json["email"],
-        phoneNumber: json['phoneNumber'],
-      );
+      userId: json['userId'],
+      firstName: json["firstName"],
+      lastName: json["lastName"],
+      email: json["email"],
+      phoneNumber: json['phoneNumber'],
+      profileId: json['profileId']);
 
   Map<String, dynamic> toJson() => {
         'userId': userId,
         "firstName": firstName,
         "lastName": lastName,
         "email": email,
-        'phoneNumber': phoneNumber
+        'phoneNumber': phoneNumber,
+        "profileId": profileId,
       };
 }
 

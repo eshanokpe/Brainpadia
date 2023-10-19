@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:brainepadia/models/profileusermodel.dart';
 import 'package:brainepadia/screen/dashboard/dashboard.dart';
 import 'package:brainepadia/screen/registration/signup.dart';
 import 'package:flutter/gestures.dart';
@@ -390,9 +391,9 @@ class _LoginState extends State<Login> {
                                             password,
                                           );
                                         } catch (e) {
-                                          Navigator.pop(context);
+                                          //Navigator.pop(context);
                                           dialogBox.information(context,
-                                              'Status', 'Unable to signup');
+                                              'Status', 'Unable to sign in');
                                         }
                                       } else {
                                         // Fluttertoast.showToast(
@@ -452,6 +453,7 @@ class _LoginState extends State<Login> {
 
   signin(String email, String password) async {
     var url = Uri.parse("$baseUrl/Account/auth_login");
+
     //var url = Uri.parse("https://api.brainepedia.com/api/Account/register");
 
     dialogBox.waiting(context, 'Signing In');
@@ -462,8 +464,8 @@ class _LoginState extends State<Login> {
     });
     final headers = {'Content-Type': 'application/json'};
 
-    print("email:$email");
-    print("Password:$password");
+    //print("email:$email");
+    //print("Password:$password");
     final body =
         jsonEncode({"email": email, "password": password, "rememberMe": true});
     final response = await http.post(
@@ -472,8 +474,6 @@ class _LoginState extends State<Login> {
       body: body,
     );
     if (response.statusCode == 200) {
-      timer.cancel();
-      Navigator.pop(context);
       Map<String, dynamic> userProfile = jsonDecode(response.body);
       Token token = Token.fromJSON(jsonDecode(response.body));
       String ttoken = token.toString().substring(3);
@@ -488,9 +488,21 @@ class _LoginState extends State<Login> {
 
       final finalToken = method(ttoken).trim();
 
-      print(finalToken);
-      print("userProfile:$userProfile");
-      Loginusermodel loginusermodel = Loginusermodel.fromJson(userProfile);
+      //print(finalToken);
+      int profileId = userProfile['userProfile']['profileId'];
+      //print("userProfile:${userProfile['userProfile']['profileId']}");
+
+      var urlgetprofile = Uri.parse("$baseUrl/Profiles/get_profile/$profileId");
+
+      var response2 = await http
+          .get(urlgetprofile, headers: {"Authorization": 'Bearer $finalToken'});
+      Map<String, dynamic> getProfile = jsonDecode(response2.body);
+      print(getProfile);
+      ProfileUserModel profileUserModel = ProfileUserModel.fromJson(getProfile);
+      context.read<Providers>().setProfile(profileUserModel);
+      //context.read<Providers>().setProfile(getProfile);
+      Loginusermodel loginusermodel =
+          Loginusermodel.fromJson(userProfile['userProfile']);
       context.read<Providers>().setLoginDetails(loginusermodel);
       context.read<Providers>().seToken(finalToken);
       Fluttertoast.showToast(msg: 'Sign in successful!');
@@ -499,6 +511,8 @@ class _LoginState extends State<Login> {
           MaterialPageRoute(
             builder: (context) => Dashboard(),
           ));
+      timer.cancel();
+      // Navigator.pop(context);
     } else if (response.statusCode == 201) {
       timer.cancel();
       Navigator.pop(context);
