@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'onboarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({Key? key}) : super(key: key);
+
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -59,7 +61,13 @@ class _SplashScreenState extends State<SplashScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Center(
-                child: Image.asset('assets/logo.png'),
+                child: Image.asset(
+                  'assets/logo.png',
+                  height: 120,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
               ),
               Text(
                 'Brainepadia',

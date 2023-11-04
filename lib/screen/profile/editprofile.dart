@@ -1,12 +1,19 @@
-import 'package:brainepadia/models/profileusermodel.dart';
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:brainepadia/utils/dialog.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import 'package:brainepadia/utils/authValiator.dart';
 import 'package:brainepadia/utils/color_constant.dart';
+import 'package:brainepadia/utils/constants.dart';
 import 'package:brainepadia/utils/formFieldconstant.dart';
 import 'package:brainepadia/utils/image_constant.dart';
 import 'package:brainepadia/utils/math_utils.dart';
 import 'package:brainepadia/utils/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -19,6 +26,8 @@ class _ProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     var getProfile = context.watch<Providers>().profileDetails;
+
+    DialogBox dialogBox = DialogBox();
     TextEditingController firstNameController =
         TextEditingController(text: getProfile.firstName!);
     TextEditingController surNameController =
@@ -29,8 +38,10 @@ class _ProfileState extends State<EditProfile> {
     TextEditingController emailController =
         TextEditingController(text: getProfile.email ?? '');
     TextEditingController phoneController =
-        TextEditingController(text: getProfile.phoneNumber ?? 'N/A');
-    
+        TextEditingController(text: getProfile.phoneNumber ?? '');
+    TextEditingController nickNameController =
+        TextEditingController(text: getProfile.nickName ?? '');
+
     return SafeArea(
       child: Scaffold(
 
@@ -215,9 +226,6 @@ class _ProfileState extends State<EditProfile> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: size.height / 40,
-                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -248,7 +256,7 @@ class _ProfileState extends State<EditProfile> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
@@ -273,13 +281,10 @@ class _ProfileState extends State<EditProfile> {
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: size.height / 40,
-                      ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
                               'Nick Name',
@@ -290,12 +295,16 @@ class _ProfileState extends State<EditProfile> {
                                 // fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              getProfile.nickName ?? 'N/A',
-                              style: TextStyle(
-                                color: ColorConstant.gray503,
-                              ),
-                            )
+                            SizedBox(
+                              height: 10,
+                            ),
+                            FormFieldConstant(
+                              hintText: 'Enter Nick Name',
+                              controller: nickNameController,
+                              keyboardType: TextInputType.name,
+                              onSaved: null,
+                              validateText: null,
+                            ),
                           ],
                         ),
                       ),
@@ -308,56 +317,101 @@ class _ProfileState extends State<EditProfile> {
                 width: double.infinity,
                 margin: EdgeInsets.only(
                   top: getVerticalSize(
-                    700.00,
+                    1100.00,
                   ),
                   left: getHorizontalSize(
-                    90.00,
+                    60.00,
                   ),
                   right: getHorizontalSize(
-                    90.00,
+                    60.00,
                   ),
                   bottom: getHorizontalSize(
                     30.00,
                   ),
                 ),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    // Navigator.pushReplacement(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //       builder: (context) => Profile(),
-                    //     ));
-                  },
-                  child: const Text(
-                    "Save Change",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Poppins',
-                        fontSize: 17,
-                        letterSpacing:
-                            0 /*percentages not used in flutter. defaulting to zero*/,
-                        fontWeight: FontWeight.normal,
-                        height: 1),
-                  ),
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontSize: 17,
+                            letterSpacing:
+                                0 /*percentages not used in flutter. defaulting to zero*/,
+                            fontWeight: FontWeight.normal,
+                            height: 1),
+                      ),
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 18),
+                        ),
+                        backgroundColor:
+                            MaterialStateProperty.all(ColorConstant.gray900Cc),
+                        overlayColor: MaterialStateProperty.resolveWith(
+                          (states) {
+                            return states.contains(MaterialState.pressed)
+                                ? Colors.black26
+                                : null;
+                          },
+                        ),
                       ),
                     ),
-                    padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 18),
-                    ),
-                    backgroundColor:
-                        MaterialStateProperty.all(ColorConstant.primaryColor),
-                    overlayColor: MaterialStateProperty.resolveWith(
-                      (states) {
-                        return states.contains(MaterialState.pressed)
-                            ? Colors.black26
-                            : null;
+                    ElevatedButton(
+                      onPressed: () async {
+                        updateProfile(
+                          getProfile.profileId,
+                          firstNameController.text.trim(),
+                          surNameController.text.trim(),
+                          middleNameController.text.trim(),
+                          phoneController.text.trim(),
+                          nickNameController.text.trim(),
+                        );
                       },
+                      child: const Text(
+                        "Save Change",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontSize: 17,
+                            letterSpacing:
+                                0 /*percentages not used in flutter. defaulting to zero*/,
+                            fontWeight: FontWeight.normal,
+                            height: 1),
+                      ),
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        padding: MaterialStateProperty.all(
+                          const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 18),
+                        ),
+                        backgroundColor: MaterialStateProperty.all(
+                            ColorConstant.primaryColor),
+                        overlayColor: MaterialStateProperty.resolveWith(
+                          (states) {
+                            return states.contains(MaterialState.pressed)
+                                ? Colors.black26
+                                : null;
+                          },
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -365,5 +419,54 @@ class _ProfileState extends State<EditProfile> {
         ),
       )),
     );
+  }
+
+  DialogBox dialogBox = DialogBox();
+  void updateProfile(int? profileId, String? firstName, String? surName,
+      String? middleName, String? phone, String? nickName) async {
+    print('profileId:$profileId');
+
+    dialogBox.waiting(context, 'Loading ...');
+    var timer = Timer(const Duration(milliseconds: 30000), () {
+      Navigator.pop(context);
+      dialogBox.information(context, 'Status', 'Service timed out');
+      return;
+    });
+    var urlgetprofile = Uri.parse("$baseUrl/Profiles/edit/$profileId");
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('tokenDB');
+    // var response = await http .get(urlgetprofile, headers: {"Authorization": 'Bearer $token'});
+    final headers = {
+      "Authorization": 'Bearer $token',
+      'Content-Type': 'application/json'
+    };
+    final body = jsonEncode({
+      "ProfileId": "$profileId",
+      "FirstName": "tobi",
+      "SurName": "sarah",
+      "MiddleName": "joy",
+      "NickName": "nick",
+      "AboutMe": "AboutMe",
+      "Address": "Address",
+      "PhoneNumber": "090",
+      "Experience": 0,
+    });
+    final response = await http.post(
+      urlgetprofile,
+      headers: headers,
+      body: body,
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      timer.cancel();
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: 'Updated Successful!');
+    } else {
+      timer.cancel();
+      //Map<String, dynamic> userError = jsonDecode(response.body);
+      Navigator.pop(context);
+      Fluttertoast.showToast(msg: 'Error!');
+      //dialogBox.information(context, 'Error', '${userError['message']}');
+    }
   }
 }

@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   itemBuilder: (context, i) {
                     return Align(
                       alignment: Alignment.centerLeft,
-                      child: Container(
+                      child: SizedBox(
                         height: size.height,
                         width: size.width,
                         child: Stack(

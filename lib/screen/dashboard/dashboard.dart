@@ -1,24 +1,27 @@
 import 'package:brainepadia/screen/authentication/login.dart';
 import 'package:brainepadia/screen/profile/profile.dart';
-import 'package:brainepadia/utils/color_constant.dart';
 import 'package:brainepadia/utils/dialog.dart';
-import 'package:brainepadia/utils/math_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'homepage.dart';
+import 'transaction/transactions.dart';
 
 class Dashboard extends StatefulWidget {
-  Dashboard({Key? key});
+  const Dashboard({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  pop() {
-    SystemNavigator.pop();
+  pop() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('tokenDB', 'logout');
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => const Login()));
   }
 
   DialogBox dialogBox = DialogBox();
@@ -40,69 +43,69 @@ class _DashboardState extends State<Dashboard> {
         : MediaQuery.of(context).size.height;
 
     final pages = <Widget>[
-      Homepage(),
-      Text('width'),
-      Text('width'),
+      const Homepage(),
+      const Text('width'),
+      const Transactions(),
       const Profile(),
     ];
 
-    AppBar? appBar() {
-      switch (currentTabIndex) {
-        case 0:
-          return AppBar(
-            title:
-                Text('GAPhub', style: TextStyle(fontWeight: FontWeight.bold)),
-            centerTitle: true,
-            automaticallyImplyLeading: false,
-          );
-          break;
-        case 1:
-          break;
-        case 2:
-          return AppBar(
-            title: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text('Asset Acquisition',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: width * .03,
-                        fontWeight: FontWeight.w600)),
-                Text('The only path that leads to financial independence',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w400,
-                      fontSize: width * .023,
-                    )),
-              ],
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Image.asset(
-                  'assets/images/tracking.png',
-                  color: Colors.black,
-                ),
-              ),
-            ],
-            elevation: 5,
-            leading: Icon(
-              Icons.ac_unit,
-              color: Colors.white,
-            ),
-            backgroundColor: Colors.white,
-          );
+    // AppBar? appBar() {
+    //   switch (currentTabIndex) {
+    //     case 0:
+    //       return AppBar(
+    //         title:
+    //             const Text('GAPhub', style: TextStyle(fontWeight: FontWeight.bold)),
+    //         centerTitle: true,
+    //         automaticallyImplyLeading: false,
+    //       );
+    //       break;
+    //     case 1:
+    //       break;
+    //     case 2:
+    //       return AppBar(
+    //         title: Column(
+    //           mainAxisAlignment: MainAxisAlignment.start,
+    //           children: [
+    //             Text('Asset Acquisition',
+    //                 style: TextStyle(
+    //                     color: Colors.black,
+    //                     fontSize: width * .03,
+    //                     fontWeight: FontWeight.w600)),
+    //             Text('The only path that leads to financial independence',
+    //                 style: TextStyle(
+    //                   color: Colors.black,
+    //                   fontWeight: FontWeight.w400,
+    //                   fontSize: width * .023,
+    //                 )),
+    //           ],
+    //         ),
+    //         actions: [
+    //           Padding(
+    //             padding: const EdgeInsets.all(15.0),
+    //             child: Image.asset(
+    //               'assets/images/tracking.png',
+    //               color: Colors.black,
+    //             ),
+    //           ),
+    //         ],
+    //         elevation: 5,
+    //         leading: const Icon(
+    //           Icons.ac_unit,
+    //           color: Colors.white,
+    //         ),
+    //         backgroundColor: Colors.white,
+    //       );
 
-          break;
-        case 3:
-          break;
-        case 4:
-          break;
-        default:
-          return null;
-      }
-      return null;
-    }
+    //       break;
+    //     case 3:
+    //       break;
+    //     case 4:
+    //       break;
+    //     default:
+    //       return null;
+    //   }
+    //   return null;
+    // }
 
     PageStorageBucket bucket = PageStorageBucket();
 
@@ -149,30 +152,30 @@ class _DashboardState extends State<Dashboard> {
           label: 'Profile')
     ];
 
-    return Scaffold(
-      // appBar: appBar(),
-      body: WillPopScope(
-        onWillPop: () {
-          return dialogBox.options(
-              context, 'Exit', 'Are you sure you want to exit?', pop);
-        },
-        child: PageStorage(
+    return WillPopScope(
+      onWillPop: () {
+        return dialogBox.options(
+            context, 'Exit', 'Are you sure you want to exit?', pop);
+      },
+      child: Scaffold(
+        // appBar: appBar(),
+        body: PageStorage(
           child: pages[currentTabIndex],
           bucket: bucket,
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedFontSize: width * .04,
-        unselectedFontSize: width * .03,
-        items: bottomItems,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: currentTabIndex,
-        onTap: (index) {
-          setState(() {
-            currentTabIndex = index;
-          });
-        },
+        bottomNavigationBar: BottomNavigationBar(
+          selectedFontSize: width * .04,
+          unselectedFontSize: width * .03,
+          items: bottomItems,
+          backgroundColor: Colors.white,
+          type: BottomNavigationBarType.fixed,
+          currentIndex: currentTabIndex,
+          onTap: (index) {
+            setState(() {
+              currentTabIndex = index;
+            });
+          },
+        ),
       ),
     );
   }

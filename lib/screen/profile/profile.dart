@@ -20,6 +20,7 @@ class _ProfileState extends State<Profile> {
   Widget build(BuildContext context) {
     var getProfile = context.watch<Providers>().profileDetails;
     print(getProfile.fullName);
+
     //ProfileUserModel profile = ProfileUserModel.fromJson(getProfile);
 
     return SafeArea(
@@ -90,7 +91,7 @@ class _ProfileState extends State<Profile> {
                     SizedBox(height: size.height / 50),
                     Text(
                       getProfile.fullName!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontFamily: 'Poppins',
                         color: Colors.black,
@@ -298,10 +299,10 @@ class _ProfileState extends State<Profile> {
                 ),
                 child: ElevatedButton(
                   onPressed: () async {
-                    Navigator.pushReplacement(
+                    Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditProfile(),
+                          builder: (context) => const EditProfile(),
                         ));
                   },
                   child: const Text(

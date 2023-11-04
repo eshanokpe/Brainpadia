@@ -1,23 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:brainepadia/screen/authentication/login.dart';
-import 'package:brainepadia/screen/dashboard/dashboard.dart';
-import 'package:brainepadia/screen/registration/signup.dart';
-import 'package:provider/provider.dart';
 import 'package:brainepadia/utils/authValiator.dart';
 import 'package:brainepadia/utils/color_constant.dart';
-import 'package:brainepadia/utils/constants.dart';
 import 'package:brainepadia/utils/dialog.dart';
 import 'package:brainepadia/utils/formFieldconstant.dart';
 import 'package:brainepadia/utils/image_constant.dart';
 import 'package:brainepadia/utils/math_utils.dart';
-import 'package:brainepadia/utils/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-
-import '../privacy/tnc.dart';
-import 'forgotpassword.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({Key? key}) : super(key: key);
@@ -35,7 +27,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     enode = FocusNode();
     pnode = FocusNode();
@@ -327,7 +318,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                           child: Text(
                                             'Login',
                                             style: TextStyle(
-                                              color: Color.fromARGB(
+                                              color: const Color.fromARGB(
                                                   255, 59, 64, 84),
                                               fontSize: getFontSize(
                                                 16,

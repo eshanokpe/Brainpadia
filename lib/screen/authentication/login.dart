@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:brainepadia/models/profileusermodel.dart';
+import 'package:brainepadia/models/transactionmodel.dart';
+import 'package:brainepadia/models/walletmodel.dart';
 import 'package:brainepadia/screen/dashboard/dashboard.dart';
 import 'package:brainepadia/screen/registration/signup.dart';
-import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:brainepadia/models/loginusermodel.dart';
 import 'package:brainepadia/utils/authValiator.dart';
@@ -17,8 +18,8 @@ import 'package:brainepadia/utils/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../privacy/tnc.dart';
 import 'forgotpassword.dart';
 
 class Login extends StatefulWidget {
@@ -38,7 +39,6 @@ class _LoginState extends State<Login> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     enode = FocusNode();
     pnode = FocusNode();
@@ -457,7 +457,7 @@ class _LoginState extends State<Login> {
     //var url = Uri.parse("https://api.brainepedia.com/api/Account/register");
 
     dialogBox.waiting(context, 'Signing In');
-    var timer = Timer(const Duration(milliseconds: 30000), () {
+    var timer = Timer(const Duration(milliseconds: 50000), () {
       Navigator.pop(context);
       dialogBox.information(context, 'Status', 'Service timed out');
       return;
@@ -480,38 +480,74 @@ class _LoginState extends State<Login> {
       String method(String str) {
         String result = '';
 
-        if (str != null && str.length > 0) {
+        if (str.isNotEmpty) {
           result = str.substring(0, str.length - 3);
         }
         return result;
       }
 
       final finalToken = method(ttoken).trim();
+      context.read<Providers>().seToken(finalToken);
+      int value = 0;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('tokenDB', finalToken);
+      await prefs.setInt("value", value);
+      await prefs.setString('tokenDB', finalToken);
 
       //print(finalToken);
       int profileId = userProfile['userProfile']['profileId'];
       //print("userProfile:${userProfile['userProfile']['profileId']}");
 
       var urlgetprofile = Uri.parse("$baseUrl/Profiles/get_profile/$profileId");
+      var urlgetwallet =
+          Uri.parse("$baseUrl/Profiles/get_wallet?profileId=$profileId");
 
       var response2 = await http
           .get(urlgetprofile, headers: {"Authorization": 'Bearer $finalToken'});
+      var response3 = await http
+          .get(urlgetwallet, headers: {"Authorization": 'Bearer $finalToken'});
       Map<String, dynamic> getProfile = jsonDecode(response2.body);
-      print(getProfile);
+      Map<String, dynamic> getWallet = jsonDecode(response3.body);
+      // print(getWallet['walletAddress']);
+      WalletModel walletModel = WalletModel.fromJson(getWallet);
+      context.read<Providers>().setWallet(walletModel);
+
       ProfileUserModel profileUserModel = ProfileUserModel.fromJson(getProfile);
       context.read<Providers>().setProfile(profileUserModel);
-      //context.read<Providers>().setProfile(getProfile);
-      Loginusermodel loginusermodel =
-          Loginusermodel.fromJson(userProfile['userProfile']);
-      context.read<Providers>().setLoginDetails(loginusermodel);
-      context.read<Providers>().seToken(finalToken);
-      Fluttertoast.showToast(msg: 'Sign in successful!');
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Dashboard(),
-          ));
-      timer.cancel();
+
+      var walletAddress = getWallet['walletAddress'];
+      var urlgetTransaction = Uri.parse(
+          "$baseUrl/BPCoin/get_transaction_by_address?userAddress=$walletAddress&pageNumber=1&resultPerPage=5");
+      var responseTransaction = await http.get(urlgetTransaction,
+          headers: {"Authorization": 'Bearer $finalToken'});
+      if (responseTransaction.statusCode == 200) {
+        Map<String, dynamic> sendWalletData =
+            jsonDecode(responseTransaction.body);
+        List transactionData = sendWalletData['data'];
+        print('transactionData:$transactionData');
+
+        // TransactionModel transactions =
+        //    TransactionModel.fromJson(transactionData);
+        context.read<Providers>().setTransaction(transactionData);
+        //print("getTransaction:$getTransaction");
+
+        Loginusermodel loginusermodel =
+            Loginusermodel.fromJson(userProfile['userProfile']);
+        context.read<Providers>().setLoginDetails(loginusermodel);
+        context.read<Providers>().seToken(finalToken);
+        Fluttertoast.showToast(msg: 'Sign in successful!');
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Dashboard(),
+            ));
+        timer.cancel();
+      } else {
+        timer.cancel();
+        Navigator.pop(context);
+        dialogBox.information(context, 'Error', 'Transaction response Error');
+      }
+
       // Navigator.pop(context);
     } else if (response.statusCode == 201) {
       timer.cancel();
@@ -546,6 +582,6 @@ class Token {
 
   @override
   String toString() {
-    return ' { ${this.token} } ';
+    return ' { $token } ';
   }
 }

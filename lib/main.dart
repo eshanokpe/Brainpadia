@@ -29,11 +29,16 @@ class MyApp extends StatelessWidget {
       title: ' Brainepadia',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        // is not restarted.
         primarySwatch: Colors.purple,
+        backgroundColor:
+            Colors.black, // Set the background color of the app bar
+        textTheme: const TextTheme(
+          headline6: TextStyle(color: Colors.black), // Set the title text color
+        ),
+        iconTheme: const IconThemeData(
+            color: Colors.black), // Set the back button color
       ),
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
