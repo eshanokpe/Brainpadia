@@ -35,7 +35,10 @@ class _TransactionsState extends State<Transactions> {
     var getWallet = context.watch<Providers>().walletDetails;
     var walletAddress = getWallet.walletAddress;
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: const Text('Transaction')),
+      appBar: AppBar(
+          automaticallyImplyLeading: false, // Disable back arrow icon
+          centerTitle: true,
+          title: const Text('Transaction')),
       body: ListView(
         children: [
           SizedBox(

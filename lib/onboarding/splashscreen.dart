@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 10,
               ),
               Text(
-                'Brainepadia',
+                'Brainepadia Wallet',
                 style: TextStyle(
                   color: ColorConstant.primaryColor,
                   fontSize: getFontSize(

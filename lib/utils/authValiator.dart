@@ -22,16 +22,17 @@ class AuthValidator {
     //     r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$';
 
     //String cap = r'^(?=.*?[A-Z])';
-    String small = r'^(?=.*?[a-z])';
-    // String digit = r'^(?=.*?[0-9])';
+    //String small = r'^(?=.*?[a-z])';
+    //String digit = r'^(?=.*?[0-9])';
     // String char = r'^(?=.*?[!"#$%&€£()*+,-./:;<=>?@[\]^_`{|}~])';
 
     if (text.isEmpty) {
-      return 'Your password should have a mixture of numbers, letters (uppercase and lowercase) with a special character.';
+      //return 'Your password should have a mixture of numbers, letters (uppercase and lowercase) with a special character.';
+      return 'Please enter your Password';
     }
     if (text.length < 6) return 'Minimum of 6 characters';
     //if (!RegExp(cap).hasMatch(text)) return 'One upper case letter';
-    if (!RegExp(small).hasMatch(text)) return 'One lower case letter';
+    //if (!RegExp(small).hasMatch(text)) return 'One lower case letter';
     //if (!RegExp(digit).hasMatch(text)) return 'One number';
     // if (!RegExp(char).hasMatch(text)) return 'One special character';
 

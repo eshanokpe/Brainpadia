@@ -9,6 +9,7 @@ class Providers extends ChangeNotifier {
   ProfileUserModel profileDetails = ProfileUserModel();
   WalletModel walletDetails = WalletModel();
   List transactionDetails = [];
+  int? getaddress;
   Map transactionDetailsdata = {};
 
   setLoginDetails(Loginusermodel details) {
@@ -29,6 +30,10 @@ class Providers extends ChangeNotifier {
   setTransaction(List transactions) {
     transactionDetails = transactions;
     notifyListeners();
+  }
+
+  setGetaddress(int getAddress) {
+    getaddress = getAddress;
   }
 
   setTransactiondetials(Map transactionsDetails) {

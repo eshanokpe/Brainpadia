@@ -18,7 +18,7 @@ class Send extends StatefulWidget {
 
   @override
   State<Send> createState() => _SendState();
-} 
+}
 
 class _SendState extends State<Send> {
   DialogBox dialogBox = DialogBox();
@@ -34,11 +34,10 @@ class _SendState extends State<Send> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(
           'Send',
           style: TextStyle(
-            color: ColorConstant.black902,
+            color: ColorConstant.whiteA700,
             fontSize: getFontSize(
               22,
             ),
@@ -110,52 +109,52 @@ class _SendState extends State<Send> {
             SizedBox(
               height: size.height / 40,
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: getHorizontalSize(
-                  20.00,
-                ),
-                right: getHorizontalSize(
-                  20.00,
-                ),
-              ),
-              child: Text(
-                'Sender Address',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: getFontSize(
-                    20,
-                  ),
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: getHorizontalSize(
-                  20.00,
-                ),
-                right: getHorizontalSize(
-                  20.00,
-                ),
-              ),
-              child: FormFieldConstant(
-                hintText: 'Enter sender address',
-                controller: _senderaddress,
-                disable: false,
-                keyboardType: TextInputType.name,
-                validateText: AuthValidator.validateName,
-                // focusNode: pnode,
-                onSaved: null,
-              ),
-            ),
-            SizedBox(
-              height: size.height / 40,
-            ),
+            // Padding(
+            //   padding: EdgeInsets.only(
+            //     left: getHorizontalSize(
+            //       20.00,
+            //     ),
+            //     right: getHorizontalSize(
+            //       20.00,
+            //     ),
+            //   ),
+            //   child: Text(
+            //     'Sender Address',
+            //     style: TextStyle(
+            //       color: Colors.black,
+            //       fontSize: getFontSize(
+            //         20,
+            //       ),
+            //       fontFamily: 'Poppins',
+            //       fontWeight: FontWeight.w400,
+            //     ),
+            //   ),
+            // ),
+            // const SizedBox(
+            //   height: 5,
+            // ),
+            // Padding(
+            //   padding: EdgeInsets.only(
+            //     left: getHorizontalSize(
+            //       20.00,
+            //     ),
+            //     right: getHorizontalSize(
+            //       20.00,
+            //     ),
+            //   ),
+            //   child: FormFieldConstant(
+            //     hintText: 'Enter sender address',
+            //     controller: _senderaddress,
+            //     disable: false,
+            //     keyboardType: TextInputType.name,
+            //     validateText: AuthValidator.validateName,
+            //     // focusNode: pnode,
+            //     onSaved: null,
+            //   ),
+            // ),
+            // SizedBox(
+            //   height: size.height / 40,
+            // ),
             Padding(
               padding: EdgeInsets.only(
                   left: getHorizontalSize(
@@ -297,12 +296,13 @@ class _SendState extends State<Send> {
     );
   }
 
-  void sendData(String trim, String? sender, String? amount) async {
+  void sendData(String recipient, String? sender, String? amount) async {
     //var url = Uri.parse( "$baseUrl/BPCoin/send_coin?recipientAddress=$trim&senderAddress=$trim2&amount=$trim3&fee=0.05");
     print('amount:$amount');
     print('sender:$sender');
+    print('recipient:$recipient');
     var url = Uri.parse(
-        "$baseUrl/BPCoin/send_coin?recipientAddress=BPCAVeGRcvhaw9vNH7LGdSPuDH3dmqPdMCyEj8FCnjhasvC&senderAddress=$sender&amount=$amount&fee=0.05");
+        "$baseUrl/BPCoin/send_coin?recipientAddress=$recipient&senderAddress=$sender&amount=$amount&fee=0.05");
 
     final prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('tokenDB');
@@ -319,7 +319,7 @@ class _SendState extends State<Send> {
       Map<String, dynamic> userData = jsonDecode(response.body);
       //Map<String, dynamic> data = userData['data'];
       print(userData);
-      Fluttertoast.showToast(msg: 'Success');
+
       timer.cancel();
       Navigator.pop(context);
       dialogBox.information(

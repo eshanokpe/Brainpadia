@@ -10,6 +10,7 @@ import 'package:brainepadia/utils/image_constant.dart';
 import 'package:brainepadia/utils/math_utils.dart';
 import 'package:brainepadia/utils/providers.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
@@ -29,10 +30,45 @@ class Homepage extends StatefulWidget {
 
 class _HomepageState extends State<Homepage> {
   DialogBox dialogBox = DialogBox();
-
+  var getWallet;
+  //int? getaddress;
   @override
   void initState() {
     super.initState();
+
+    //getbalance();
+  }
+
+  @override
+  void didChangeDependencies() async {
+    var address = getWallet.walletAddress;
+    super.didChangeDependencies();
+    getWallet = context.watch<Providers>().walletDetails;
+    print('finalGanpListListtt:${getWallet.walletAddress}');
+    //  dialogBox.waiting(context, 'Loadig...');
+    var timer = Timer(const Duration(milliseconds: 30000), () {
+      Navigator.pop(context);
+      dialogBox.information(context, 'Status', 'Service timed out');
+      return;
+    });
+    //print('${item['hash']}');
+    var urlgetTransaction = Uri.parse(
+        "$baseUrl/BPCoin/get_balance_by_address?userAddress=$address");
+    final prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('tokenDB');
+    var responseTransaction = await http
+        .get(urlgetTransaction, headers: {"Authorization": 'Bearer $token'});
+    //print(responseTransaction.statusCode);
+    if (responseTransaction.statusCode == 200) {
+      var getbalanceData = jsonDecode(responseTransaction.body);
+      // setState(() => getaddress = getbalanceData['data']);
+      //print('getbalance:$getaddress');
+      timer.cancel();
+      //Fluttertoast.showToast(msg: 'Success');
+    } else {
+      timer.cancel();
+      Fluttertoast.showToast(msg: 'Error');
+    }
   }
 
   @override
@@ -42,6 +78,7 @@ class _HomepageState extends State<Homepage> {
     var lastName = context.watch<Providers>().loginDetails.lastName;
     var transactionDetails = context.watch<Providers>().transactionDetails;
     var getWallet = context.watch<Providers>().walletDetails;
+    var getaddress = context.watch<Providers>().getaddress;
     var walletAddress = getWallet.walletAddress;
     return WillPopScope(
       onWillPop: () async {
@@ -169,7 +206,7 @@ class _HomepageState extends State<Homepage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '40,059.83',
+                            '${getaddress.toString()} BPC',
                             style: TextStyle(
                               color: ColorConstant.black900,
                               fontSize: getFontSize(
@@ -294,15 +331,6 @@ class _HomepageState extends State<Homepage> {
                             ],
                           ),
                         ],
-                      ),
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                        child: const Text('Log out'),
-                        onPressed: () {
-                          dialogBox.options(context, "Log Out",
-                              'Are you sure you want to log out?', yes);
-                        },
                       ),
                     ),
                   ],

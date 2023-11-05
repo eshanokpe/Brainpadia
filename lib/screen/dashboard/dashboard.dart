@@ -1,5 +1,5 @@
+import 'package:brainepadia/screen/account/account.dart';
 import 'package:brainepadia/screen/authentication/login.dart';
-import 'package:brainepadia/screen/profile/profile.dart';
 import 'package:brainepadia/utils/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +46,7 @@ class _DashboardState extends State<Dashboard> {
       const Homepage(),
       const Text('width'),
       const Transactions(),
-      const Profile(),
+      Account(),
     ];
 
     // AppBar? appBar() {
@@ -149,7 +149,7 @@ class _DashboardState extends State<Dashboard> {
             'assets/icons/profile_active.png',
             height: height * .04,
           ),
-          label: 'Profile')
+          label: 'Account')
     ];
 
     return WillPopScope(

@@ -287,8 +287,7 @@ class _LoginState extends State<Login> {
                                       obscureText: true,
                                       keyboardType:
                                           TextInputType.visiblePassword,
-                                      validateText:
-                                          AuthValidator.validatePassword,
+                                      validateText: AuthValidator.validateName,
                                       // focusNode: pnode,
                                       onSaved: null,
                                     )),
@@ -378,23 +377,22 @@ class _LoginState extends State<Login> {
                                       }
                                       if (_formKey.currentState!.validate()) {
                                         _formKey.currentState!.save();
-                                        try {
-                                          final String email =
-                                              _email.text.trim();
-                                          final String password =
-                                              _password.text.trim();
-                                          // Fluttertoast.showToast(
-                                          //   msg: 'ok SUCCESS');
+                                        // try {
+                                        final String email = _email.text.trim();
+                                        final String password =
+                                            _password.text.trim();
+                                        // Fluttertoast.showToast(
+                                        //   msg: 'ok SUCCESS');
 
-                                          await signin(
-                                            email,
-                                            password,
-                                          );
-                                        } catch (e) {
-                                          //Navigator.pop(context);
-                                          dialogBox.information(context,
-                                              'Status', 'Unable to sign in');
-                                        }
+                                        await signin(
+                                          email,
+                                          password,
+                                        );
+                                        // } catch (e) {
+                                        //   //Navigator.pop(context);
+                                        //   dialogBox.information(context,
+                                        //       'Status', 'Unable to sign in');
+                                        // }
                                       } else {
                                         // Fluttertoast.showToast(
                                         //   msg: 'No SUCCESS');
@@ -457,8 +455,9 @@ class _LoginState extends State<Login> {
     //var url = Uri.parse("https://api.brainepedia.com/api/Account/register");
 
     dialogBox.waiting(context, 'Signing In');
-    var timer = Timer(const Duration(milliseconds: 50000), () {
+    var timer = Timer(const Duration(milliseconds: 80000), () {
       Navigator.pop(context);
+
       dialogBox.information(context, 'Status', 'Service timed out');
       return;
     });
@@ -518,13 +517,20 @@ class _LoginState extends State<Login> {
       var walletAddress = getWallet['walletAddress'];
       var urlgetTransaction = Uri.parse(
           "$baseUrl/BPCoin/get_transaction_by_address?userAddress=$walletAddress&pageNumber=1&resultPerPage=5");
+      var urlgetTransactionDetails = Uri.parse(
+          "$baseUrl/BPCoin/get_balance_by_address?userAddress=$walletAddress");
+      var responseTransactionDetails = await http.get(urlgetTransactionDetails,
+          headers: {"Authorization": 'Bearer $finalToken'});
+      var getbalanceData = jsonDecode(responseTransactionDetails.body);
+      int getaddress = getbalanceData['data'];
+      context.read<Providers>().setGetaddress(getaddress);
       var responseTransaction = await http.get(urlgetTransaction,
           headers: {"Authorization": 'Bearer $finalToken'});
       if (responseTransaction.statusCode == 200) {
         Map<String, dynamic> sendWalletData =
             jsonDecode(responseTransaction.body);
         List transactionData = sendWalletData['data'];
-        print('transactionData:$transactionData');
+        //print('transactionData:$transactionData');
 
         // TransactionModel transactions =
         //    TransactionModel.fromJson(transactionData);
@@ -557,14 +563,17 @@ class _LoginState extends State<Login> {
 
       timer.cancel();
       Navigator.pop(context);
+      Navigator.pop(context);
       dialogBox.information(context, 'Error', '${userError['message']}');
     } else if (response.statusCode == 500) {
       timer.cancel();
+      Navigator.pop(context);
       Navigator.pop(context);
       dialogBox.information(
           context, 'Status', 'Server error, please try again later');
     } else {
       timer.cancel();
+      Navigator.pop(context);
       Navigator.pop(context);
       dialogBox.information(context, 'Status',
           'Server error, ${response.statusCode} try again later');

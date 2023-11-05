@@ -404,7 +404,7 @@ class _SignUpState extends State<SignUp> {
                                       ),
                                     ),
                                     child: FormFieldConstant(
-                                      hintText: 'Comfirm Password',
+                                      hintText: 'Confirm Password',
                                       controller: _conpassword,
                                       obscureText: true,
                                       keyboardType:
@@ -531,34 +531,43 @@ class _SignUpState extends State<SignUp> {
                                       }
                                       if (_formKey.currentState!.validate()) {
                                         _formKey.currentState!.save();
-                                        try {
-                                          final String firstName =
-                                              _firstname.text.trim();
-                                          final String lastName =
-                                              _lastname.text.trim();
-                                          final String email =
-                                              _email.text.trim();
-                                          final String phoneNumber =
-                                              _phone.text.trim();
-                                          final String password =
-                                              _password.text.trim();
-                                          final String confirmPassword =
-                                              _conpassword.text.trim();
-                                          // Fluttertoast.showToast(
-                                          //     msg: 'ok SUCCESS');
+                                        print(
+                                            "first:${_firstname.text.trim()}");
+                                        print(
+                                            "lastName:${_lastname.text.trim()}");
+                                        print("Email:${_email.text.trim()}");
+                                        print("Phone:${_phone.text.trim()}");
+                                        print(
+                                            "Password:${_password.text.trim()}");
+                                        print(
+                                            "Conpassword:${_conpassword.text.trim()}");
+                                        //try {
 
-                                          await createUser(
-                                              firstName,
-                                              lastName,
-                                              email,
-                                              phoneNumber,
-                                              password,
-                                              confirmPassword);
-                                        } catch (e) {
-                                          Navigator.pop(context);
-                                          dialogBox.information(context,
-                                              'Status', 'Unable to signup');
-                                        }
+                                        String firstName =
+                                            _firstname.text.trim();
+                                        String lastName = _lastname.text.trim();
+
+                                        String email = _email.text.trim();
+                                        String phoneNumber = _phone.text.trim();
+
+                                        String password = _password.text.trim();
+
+                                        String confirmPassword =
+                                            _conpassword.text.trim();
+
+                                        createUser(
+                                            firstName,
+                                            lastName,
+                                            email,
+                                            phoneNumber,
+                                            password,
+                                            confirmPassword);
+
+                                        // } catch (e) {
+                                        //   Navigator.pop(context);
+                                        //   dialogBox.information(context,
+                                        //       'Status', 'Unable to signup');
+                                        // }
                                       } else {
                                         // Fluttertoast.showToast(
                                         //     msg: 'No SUCCESS');
@@ -620,12 +629,14 @@ class _SignUpState extends State<SignUp> {
     final url = Uri.parse("$baseUrl/Account/register");
 
     dialogBox.waiting(context, 'Signing Up');
-    var timer = Timer(const Duration(milliseconds: 40000), () {
+    var timer = Timer(const Duration(milliseconds: 30000), () {
       Navigator.pop(context);
       dialogBox.information(context, 'Status', 'Service timed out');
       return;
     });
+
     final headers = {'Content-Type': 'application/json'};
+
     final body = jsonEncode({
       "firstName": firstName,
       "lastName": lastName,
@@ -634,11 +645,15 @@ class _SignUpState extends State<SignUp> {
       "password": password,
       "confirmPassword": confirmPassword,
     });
+
     final response = await http.post(
       url,
       headers: headers,
       body: body,
     );
+    print(response.statusCode);
+    Fluttertoast.showToast(msg: 'ok SUCCESS8');
+
     if (response.statusCode == 200) {
       timer.cancel();
       Navigator.pop(context);
@@ -649,24 +664,12 @@ class _SignUpState extends State<SignUp> {
           MaterialPageRoute(
             builder: (context) => SuccessMsg(email: email),
           ));
-    } else if (response.statusCode == 201) {
-      timer.cancel();
-      Navigator.pop(context);
-    } else if (response.statusCode == 401) {
+    } else {
       Map<String, dynamic> userError = jsonDecode(response.body);
       timer.cancel();
       Navigator.pop(context);
-      dialogBox.information(context, 'Error', '${userError['message']}');
-    } else if (response.statusCode == 500) {
-      timer.cancel();
-      Navigator.pop(context);
       dialogBox.information(
-          context, 'Status', 'Server error, please try again later');
-    } else {
-      timer.cancel();
-      Navigator.pop(context);
-      dialogBox.information(context, 'Status',
-          'Server error, ${response.statusCode} try again later');
+          context, '${userError['status']}', '${userError['message']}');
     }
   }
 }
