@@ -59,10 +59,6 @@ android {
 
     signingConfigs {
 		release {
-		   v1SigningEnabled true
-		   v2SigningEnabled true
-		   enableV3Signing = true
-		   enableV4Signing = true
 		   keyAlias keystoreProperties['keyAlias']
 		   keyPassword keystoreProperties['keyPassword']
 		   storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
