@@ -13,33 +13,32 @@ class Background extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( 
+    return Scaffold(
       resizeToAvoidBottomInset: false,
       body: ListView(
         children: [
-          Container(
-            width: double.infinity,
-            //height: MediaQuery.of(context).size.height * 2,
-            height: 900,
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  child: Image.asset(
-                    topImage,
-                    width: 120,
-                  ),
+          Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              Positioned(
+                top: 0,
+                left: 0,
+                child: Image.asset(
+                  topImage,
+                  width: 120,
                 ),
-                // Positioned(
-                //   bottom: 0,
-                //   right: 0,
-                //   child: Image.asset(bottomImage, width: 120),
-                // ),
-                SafeArea(child: child),
-              ],
-            ),
+              ),
+              SingleChildScrollView(
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  // height: MediaQuery.of(context).size.height,
+                  height: 900,
+                  child: child,
+                ),
+              ),
+              //SafeArea(child: child),
+            ],
           ),
         ],
       ),

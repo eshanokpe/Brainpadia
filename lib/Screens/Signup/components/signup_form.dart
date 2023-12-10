@@ -99,14 +99,23 @@ class SignUpForm extends StatelessWidget {
           Consumer<Providers>(builder: (context, userState, _) {
             return TextFormField(
               textInputAction: TextInputAction.done,
-              obscureText: true,
+              obscureText: !userState.isPasswordVisible,
               cursorColor: kPrimaryColor,
               onChanged: (value) => userState.setPassword(value),
-              decoration: const InputDecoration(
-                hintText: "Your password",
-                prefixIcon: Padding(
+              decoration: InputDecoration(
+                hintText: "Password",
+                prefixIcon: const Padding(
                   padding: EdgeInsets.all(14),
-                  child: const Icon(Icons.lock),
+                  child: Icon(Icons.lock),
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    userState.isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    size: 20,
+                  ),
+                  onPressed: () => userState.togglePasswordVisibility(),
                 ),
               ),
             );
@@ -117,16 +126,24 @@ class SignUpForm extends StatelessWidget {
           Consumer<Providers>(builder: (context, userState, _) {
             return TextFormField(
               textInputAction: TextInputAction.done,
-              obscureText: true,
+              obscureText: !userState.isConPasswordVisible,
               cursorColor: kPrimaryColor,
               onChanged: (value) => userState.setConpassword(value),
-              decoration: const InputDecoration(
-                hintText: "Confirm password",
-                prefixIcon: Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: Icon(Icons.lock),
-                ),
-              ),
+              decoration: InputDecoration(
+                  hintText: "Confirm password",
+                  prefixIcon: const Padding(
+                    padding: EdgeInsets.all(defaultPadding),
+                    child: Icon(Icons.lock),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      userState.isConPasswordVisible
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      size: 20,
+                    ),
+                    onPressed: () => userState.toggleConPasswordVisibility(),
+                  )),
             );
           }),
           const SizedBox(height: defaultPadding),

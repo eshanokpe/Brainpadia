@@ -8,11 +8,17 @@ import '../../../constants.dart';
 import '../../Forgetpassword/forgetpassword_screen.dart';
 import '../../Signup/signup_screen.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool _obscureText = true;
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -23,7 +29,7 @@ class LoginForm extends StatelessWidget {
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               cursorColor: kPrimaryColor,
-              onChanged: (value) => userState.setEmail(value),
+              onChanged: (value) => userState.setEmail(value), 
               decoration: const InputDecoration(
                 hintText: "Email",
                 prefixIcon: Padding(
@@ -38,12 +44,22 @@ class LoginForm extends StatelessWidget {
             child: Consumer<Providers>(builder: (context, userState, _) {
               return TextFormField(
                 textInputAction: TextInputAction.done,
-                obscureText: true,
+                obscureText: _obscureText,
                 cursorColor: kPrimaryColor,
                 onChanged: (value) => userState.setPassword(value),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Password",
-                  prefixIcon: Padding(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                  prefixIcon: const Padding(
                     padding: EdgeInsets.all(defaultPadding),
                     child: Icon(Icons.lock),
                   ),
@@ -62,7 +78,7 @@ class LoginForm extends StatelessWidget {
                 ),
               );
             },
-          ),
+          ), 
           const SizedBox(height: 10),
           Consumer<Providers>(builder: (context, userState, _) {
             return Hero(

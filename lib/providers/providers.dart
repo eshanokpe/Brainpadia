@@ -4,7 +4,10 @@ import 'package:brainepadia/Screens/Login/login_screen.dart';
 import 'package:brainepadia/Screens/Otp/otp_verification.dart';
 import 'package:brainepadia/Screens/Resetpassword/resetpassword_screen.dart';
 import 'package:brainepadia/Screens/Verification/verification_screen.dart';
+import 'package:brainepadia/Screens/dashboard/Send/components/send_success.dart';
 import 'package:brainepadia/models/user.dart';
+import 'package:brainepadia/utilis/dialog.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:brainepadia/models/profileusermodel.dart';
@@ -16,6 +19,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Screens/dashboard/dashboard.dart';
 import '../utilis/constants.dart';
 import '../utilis/shared_preference.dart';
+import 'P2PPostAdsProvider.dart';
+import 'fetchBlockchain.dart';
 import 'user_provider.dart';
 
 enum Status {
@@ -31,11 +36,30 @@ enum Status {
 class Providers extends ChangeNotifier {
   Status _loggedInStatus = Status.NotLoggedIn;
   final Status _registeredInStatus = Status.NotRegistered;
+  DialogBox dialogBox = DialogBox();
+
+  bool _isPasswordVisible = false;
+  bool get isPasswordVisible => _isPasswordVisible;
+
+  void togglePasswordVisibility() {
+    _isPasswordVisible = !_isPasswordVisible;
+    notifyListeners();
+  }
+
+  bool _isConPasswordVisible = false;
+  bool get isConPasswordVisible => _isConPasswordVisible;
+
+  void toggleConPasswordVisibility() {
+    _isConPasswordVisible = !_isConPasswordVisible;
+    notifyListeners();
+  }
 
   Status get loggedInStatus => _loggedInStatus;
   Status get registeredInStatus => _registeredInStatus;
 
   Future<void> deleteAuthToken() async {
+    UserPreferences().removeUser();
+    UserPreferences().removeUser();
     UserPreferences().removeUser();
   }
 
@@ -48,72 +72,107 @@ class Providers extends ChangeNotifier {
   String? emailotp;
   String? otpCodeotp;
   String? otpCode;
+  double? _balance = 0.0;
   bool isLoading = false;
+  bool _isLoadingSend = false;
+  bool get isLoadingSend => _isLoadingSend;
+  bool getLoading = false;
 
+  double? get balance => _balance;
   String token = '';
   User userDetails = User();
   ProfileUserModel profileDetails = ProfileUserModel();
   WalletModel walletDetails = WalletModel();
-  List transactionDetails = [];
   int? getbalance;
-  var getDollarbalance;
-  int? getNaijabalance;
-  Map transactionDetailsdata = {};
+  String? sendAmount;
 
   Future<void> login(BuildContext context) async {
     try {
-      var result;
       setLoading(true);
-      notifyListeners();
-
-      // Ensure _prefs is fully initialized
 
       if (email == null || password == null) {
-        // Show validation error message
         Fluttertoast.showToast(msg: 'FIll up all fields');
         return;
       }
       var loginUrl = Uri.parse(APIEndpoints.authLogin);
-      // Create JSON payload for login request
       var payload = jsonEncode(
           {"email": email, "password": password, "rememberMe": true});
       _loggedInStatus = Status.Authenticating;
-      notifyListeners();
-      // Send login request
+
       var response = await http.post(loginUrl,
           headers: {"Content-Type": "application/json"}, body: payload);
       // Handle login response
+      print(response.statusCode);
       if (response.statusCode == 200) {
         Map<String, dynamic> userProfile = jsonDecode(response.body);
         var message = userProfile["response"]["message"];
-        var authToken = userProfile["userProfile"]["token"];
-        Fluttertoast.showToast(msg: '$message!');
-        //await setAuthToken(authToken);
-        // var authToken = jsonDecode(response.body)["response"]["message"];
-        // print("Login successful!: ${authToken} ");
-        // Store the auth token for future API requests
-        //User authUser = User.fromJson(userProfile['userProfile']);
+        int profileId = userProfile['userProfile']['profileId'];
+        var token = userProfile['userProfile']['token'];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        var tokens = await prefs.setString('token', token!);
+
+        print("profileId:$profileId");
+        print("token:$tokens");
+        await fetchProfileAndWallet(token, profileId, context);
+        var walletAddress = Provider.of<UserProvider>(context, listen: false)
+            .getuserWallet
+            .walletAddress;
+
+        var getBalanceurl = Uri.parse(
+            "$baseUrl/BPCoin/get_balance_by_address?userAddress=$walletAddress");
+        var getBalanceresponse = await http
+            .get(getBalanceurl, headers: {"Authorization": 'Bearer $token'});
+        final responseData = json.decode(getBalanceresponse.body);
+        dynamic balance = responseData['data'];
+        print('balance:$balance');
+        if (balance is int) {
+          _balance = balance.toDouble(); // Convert int to double
+        } else if (balance is double) {
+          _balance = balance.toDouble(); // Use directly without conversion
+        } else {
+          throw Exception('Get balance not available');
+        }
+
+        // print('_balance:${_balance!.toDouble()}');
+
         User authUser = User.fromJson(userProfile['userProfile']);
+        // Set the user and save it
+        Provider.of<FetchBlockchain>(context, listen: false).setUser(authUser);
+        Provider.of<P2PPostAdsProvider>(context, listen: false)
+            .setUser(authUser);
         UserPreferences().saveUser(authUser);
+
         _loggedInStatus = Status.LoggedIn;
-        notifyListeners();
+
         Provider.of<UserProvider>(context, listen: false).setUser(authUser);
+        setLoading(false);
+        notifyListeners();
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
               builder: (context) => const Dashboard(),
             ));
+        Fluttertoast.showToast(msg: '$message!');
       } else if (response.statusCode == 401) {
         _loggedInStatus = Status.NotLoggedIn;
-        notifyListeners();
+
         Map<String, dynamic> userProfile = jsonDecode(response.body);
-        result = userProfile['message'];
         Fluttertoast.showToast(msg: '${userProfile['message']}');
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('otpemail', email!);
-        print("Login failed. Error: ${response.body}");
         print("${response.statusCode}");
+        print("Login failed. Error: ${userProfile}");
+        print("Login failed. Error: ${response.body}");
+
+        if (userProfile['message'] == 'User Not Found') {
+          setLoading(false);
+          notifyListeners();
+          return;
+        }
         if (userProfile['message'] != 'Invalid Login Attempt') {
+          setLoading(false);
+          notifyListeners();
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -125,23 +184,56 @@ class Providers extends ChangeNotifier {
         }
       } else {
         _loggedInStatus = Status.NotLoggedIn;
+        setLoading(false);
         notifyListeners();
         Map<String, dynamic> userProfile = jsonDecode(response.body);
         Fluttertoast.showToast(msg: '${userProfile['message']}');
-        result = userProfile['message'];
+
         print("Login failed. Error: ${response.body}");
         print("${response.statusCode}");
         // Handle login failure
       }
-      return result;
     } catch (error) {
+      setLoading(false);
+      notifyListeners();
       Fluttertoast.showToast(msg: 'Login failed. Error: $error');
 
       print("Login failed. Error: $error");
       // Handle login exception
     } finally {
       setLoading(false);
+      notifyListeners();
     }
+  }
+
+  Future<void> fetchProfileAndWallet(
+      String token, int profileId, context) async {
+    var profileIdUrl =
+        Uri.parse(APIEndpoints.getProfile + profileId.toString());
+    var getWalletUrl =
+        Uri.parse("$baseUrl/Profiles/get_wallet?profileId=$profileId");
+
+    var responseProfile =
+        http.get(profileIdUrl, headers: {"Authorization": 'Bearer $token'});
+    var responseWallet =
+        http.get(getWalletUrl, headers: {"Authorization": 'Bearer $token'});
+
+    var responses = await Future.wait([responseProfile, responseWallet]);
+
+    Map<String, dynamic> getProfile = jsonDecode(responses[0].body);
+    ProfileUserModel profileUser = ProfileUserModel.fromJson(getProfile);
+    //UserPreferences().saveUserprofile(profileUser);
+
+    Map<String, dynamic> getWallet = jsonDecode(responses[1].body);
+    WalletModel userWallet = WalletModel.fromJson(getWallet);
+
+    // UserPreferences().userWallet(userWallet);
+    // Set the user profile and wallet
+    // Provider.of<FetchBlockchain>(context, listen: false)
+    //     .setUserprofile(profileUser);
+    Provider.of<UserProvider>(context, listen: false)
+        .setUserprofile(profileUser);
+    Provider.of<UserProvider>(context, listen: false).setUserwallet(userWallet);
   }
 
   Future<void> signUp(BuildContext context) async {
@@ -411,6 +503,51 @@ class Providers extends ChangeNotifier {
     }
   }
 
+  Future<String> fetchProfileFee(int amount, BuildContext context) async {
+    var feeUrl = Uri.parse("$baseUrl/BPCoin/get_fee?amount=$amount");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var tokens = prefs.getString('token');
+    var response =
+        await http.get(feeUrl, headers: {"Authorization": 'Bearer $tokens'});
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      print('data:$data');
+      Provider.of<UserProvider>(context, listen: false).fetchFee(data);
+
+      return data.toString();
+    } else {
+      throw Exception('Failed to fetch profile fee');
+    }
+  }
+
+  Future<void> sendOTP(String email, BuildContext context) async {
+    try {
+      setLoading(true);
+      notifyListeners();
+      var feeUrl = Uri.parse("$baseUrl/Account/resend_otp?email=$email");
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var tokens = prefs.getString('token');
+      var response =
+          await http.get(feeUrl, headers: {"Authorization": 'Bearer $tokens'});
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        Fluttertoast.showToast(msg: '${data["message"]}');
+      } else {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        Fluttertoast.showToast(msg: '${data}');
+        //throw Exception('Failed $data');
+      }
+    } catch (error) {
+      Fluttertoast.showToast(msg: 'Error: $error');
+      print("OTP code validation failed. Error: $error");
+      // Handle OTP code validation exception
+    } finally {
+      setLoading(false);
+    }
+  }
+
   Future<void> logout(BuildContext context) async {
     await deleteAuthToken();
     Navigator.pushReplacement(
@@ -472,6 +609,16 @@ class Providers extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setLoadingSend(bool value) {
+    _isLoadingSend = value;
+    notifyListeners();
+  }
+
+  void setgetLoading(bool value) {
+    getLoading = value;
+    notifyListeners();
+  }
+
   setLoginDetails(User details) {
     userDetails = details;
     notifyListeners();
@@ -487,30 +634,19 @@ class Providers extends ChangeNotifier {
     notifyListeners();
   }
 
-  setTransaction(List transactions) {
-    transactionDetails = transactions;
-    notifyListeners();
-  }
-
-  setGetbalance(int getBalance) {
-    getbalance = getBalance;
-  }
-
-  setGetdollarbalance(var getdollarbalance) {
-    getDollarbalance = getdollarbalance;
-  }
-
-  setGetnaijabalance(int getNaijabalance) {
-    getNaijabalance = getNaijabalance;
-  }
-
-  setTransactiondetials(Map transactionsDetails) {
-    transactionDetailsdata = transactionsDetails;
+  getOTPCode(String email, String otpCode) {
+    emailotp = email;
+    otpCodeotp = otpCode;
     notifyListeners();
   }
 
   seToken(String finalToken) {
     token = finalToken;
+    notifyListeners();
+  }
+
+  void setAmount(String value) {
+    sendAmount = value;
     notifyListeners();
   }
 }

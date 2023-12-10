@@ -8,4 +8,6 @@ class APIEndpoints {
   static const String postOTP = '$baseUrl/Account/post_otp';
   static const String resendOTP = '$baseUrl/Account/resend_otp';
   static const String passwordReset = '$baseUrl/Account/reset_password';
+  static const String getProfile = '$baseUrl/Profiles/get_profile/';
+  static const String getWallet = '$baseUrl/Profiles/get_wallet?profileId=17';
 }

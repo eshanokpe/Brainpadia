@@ -11,12 +11,8 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Background(
-      child: Column(
-        children: const [
-          MobileSignupScreen(),
-        ],
-      ),
+    return const Background(
+      child: MobileSignupScreen(),
     );
   }
 }

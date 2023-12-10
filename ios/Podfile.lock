@@ -9,6 +9,8 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - image_picker_ios (0.0.1):
+    - Flutter
   - path_provider_ios (0.0.1):
     - Flutter
   - Reachability (3.2)
@@ -24,6 +26,7 @@ DEPENDENCIES:
   - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
@@ -41,6 +44,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
   path_provider_ios:
     :path: ".symlinks/plugins/path_provider_ios/ios"
   shared_preferences_foundation:
@@ -53,6 +58,7 @@ SPEC CHECKSUMS:
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   fluttertoast: fafc4fa4d01a6a9e4f772ecd190ffa525e9e2d9c
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  image_picker_ios: 58b9c4269cb176f89acea5e5d043c9358f2d25f8
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences_foundation: 297b3ebca31b34ec92be11acd7fb0ba932c822ca

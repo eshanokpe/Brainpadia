@@ -10,7 +10,7 @@ class WelcomeImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    return Column(
       children: [
         const Text(
           "WELCOME TO BRAINPADIA Wallet",

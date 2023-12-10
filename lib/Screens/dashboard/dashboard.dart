@@ -1,10 +1,16 @@
+import 'package:brainepadia/Screens/dashboard/P2P/p2p_screen.dart';
+import 'package:brainepadia/Screens/dashboard/transaction/transaaction_page.dart';
 import 'package:brainepadia/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../../utilis/dialog.dart';
 import '../../providers/providers.dart';
+import 'PostAds/addpostads_screen.dart';
+import 'PostAds/viewpostads_screen.dart';
 import 'homepage/home_page.dart';
+import 'profile/profile_page.dart';
 
 class Dashboard extends StatefulWidget {
   // final User user;
@@ -43,10 +49,12 @@ class _DashboardState extends State<Dashboard> {
     final pages = <Widget>[
       const Homepage(),
       //const Converter(),
-      const Text(''),
+      const P2P(),
+      const PostAds(initialTabIndex: 0),
+
       //const Transactions(),
-      const Text(''),
-      const Text(''),
+      const AllTransaction(),
+      const Profile(),
       //Account(),
     ];
 
@@ -121,15 +129,30 @@ class _DashboardState extends State<Dashboard> {
       const BottomNavigationBarItem(
           icon: Icon(Icons.transform),
           activeIcon: Icon(Icons.transform),
-          label: 'Converter'),
+          label: 'P2P'),
+      const BottomNavigationBarItem(
+          icon: Icon(
+            Icons.add_box,
+            size: 40,
+          ),
+          activeIcon: Icon(
+            Icons.add_box,
+            size: 40,
+          ),
+          label: 'Ads'),
       const BottomNavigationBarItem(
           icon: Icon(Icons.assignment),
           activeIcon: Icon(Icons.assignment),
           label: 'Transaction'),
       const BottomNavigationBarItem(
-          icon: Icon(Icons.account_circle),
-          activeIcon: Icon(Icons.account_circle),
-          label: 'Account')
+          icon: Icon(
+            Icons.account_circle,
+          ),
+          activeIcon: Icon(
+            Icons.account_circle,
+            color: Color(0xFF9739E3),
+          ),
+          label: 'Profile')
     ];
 
     return WillPopScope(

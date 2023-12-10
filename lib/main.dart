@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:brainepadia/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'Screens/dashboard/dashboard.dart';
 import 'models/user.dart';
+import 'providers/P2PPostAdsProvider.dart';
+import 'providers/fetchBlockchain.dart';
 import 'providers/user_provider.dart';
 import 'providers/providers.dart';
 
@@ -18,7 +20,12 @@ void main() {
     DeviceOrientation.portraitUp,
   ]);
   runApp(
-    const MyApp(),
+    MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) => Providers()),
+      ChangeNotifierProvider(create: (_) => FetchBlockchain()),
+      ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => P2PPostAdsProvider()),
+    ], child: const MyApp()),
   );
 }
 
@@ -29,68 +36,67 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<User> getUserData() => UserPreferences().getUser();
-
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => Providers(),
-        ),
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-      ],
-      child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Brainepadia Walllet',
-          theme: ThemeData(
-              primaryColor: kPrimaryColor,
-              scaffoldBackgroundColor: Colors.white,
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  primary: kPrimaryColor,
-                  shape: const StadiumBorder(),
-                  maximumSize: const Size(double.infinity, 56),
-                  minimumSize: const Size(double.infinity, 56),
+ 
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Brainepadia Wallet',
+        builder: EasyLoading.init(),
+        theme: ThemeData(
+            appBarTheme: const AppBarTheme(
+              backgroundColor: kPrimaryColor, // Replace with your desired color
+            ),
+            primaryColor: kPrimaryColor,
+            scaffoldBackgroundColor: Colors.white,
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                primary: kPrimaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.circular(10), // Adjust the value as needed
                 ),
+                maximumSize: const Size(double.infinity, 56),
+                minimumSize: const Size(double.infinity, 56),
               ),
-              inputDecorationTheme: const InputDecorationTheme(
-                filled: true,
-                fillColor: kPrimaryLightColor,
-                iconColor: kPrimaryColor,
-                prefixIconColor: kPrimaryColor,
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: defaultPadding, vertical: defaultPadding),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                  borderSide: BorderSide.none,
-                ),
-              )),
-          //home: const WelcomeScreen(),
-          //home: authToken != null ? const Dashboard() : const LoginScreen(),
-          home: FutureBuilder<User>(
-              future: getUserData(),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                  case ConnectionState.waiting:
-                    return const CircularProgressIndicator(
-                      color: kPrimaryColor,
-                    );
-                  default:
-                    if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.data!.token == null) {
-                      return const LoginScreen();
-                    } else {
-                      UserPreferences().removeUser();
-                    }
-                    return WelcomeScreen(user: snapshot.data!);
-                }
-              }),
-          routes: {
-            '/dashboard': (context) => const Dashboard(),
-            '/login': (context) => const LoginScreen(),
-            '/register': (context) => const SignUpScreen(),
-          }),
-    );
+            ),
+            inputDecorationTheme: const InputDecorationTheme(
+              filled: true,
+              fillColor: kPrimaryLightColor,
+              iconColor: kPrimaryColor,
+              prefixIconColor: kPrimaryColor,
+              contentPadding: EdgeInsets.symmetric(
+                  horizontal: defaultPadding, vertical: defaultPadding),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderSide: BorderSide.none,
+              ),
+            )),
+        //home: const WelcomeScreen(),
+        //home: authToken != null ? const Dashboard() : const LoginScreen(),
+        home: FutureBuilder<User>(
+            future: getUserData(), 
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                case ConnectionState.waiting:
+                  return const CircularProgressIndicator(
+                    color: kPrimaryColor,
+                  );
+                default:
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.data!.token == null) {
+                    return const LoginScreen();
+                  } else {
+                    UserPreferences().removeUser();
+                  }
+                  return WelcomeScreen(user: snapshot.data!);
+              }
+            }),
+        routes: {
+          '/dashboard': (context) => const Dashboard(),
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const SignUpScreen(),
+        });
   }
 }
