@@ -38,6 +38,13 @@ class _PostadsSellFormState extends State<PostadsSellForm> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    final getUserProvider = Provider.of<UserProvider>(context, listen: false);
+    getUserProvider.fetchBankDetails();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Orientation orientation = MediaQuery.of(context).orientation;
     final height = orientation == Orientation.portrait
@@ -398,6 +405,10 @@ class _PostadsSellFormState extends State<PostadsSellForm> {
                         : () async {
                             if (_formKey.currentState!.validate()) {
                               _formKey.currentState!.save();
+
+                              if (getbankId == null) {
+                                Fluttertoast.showToast(msg: 'Please Select the bank');
+                              }
 
                               await userState.sendSellPostAds(
                                 context,

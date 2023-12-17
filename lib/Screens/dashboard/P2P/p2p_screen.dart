@@ -19,16 +19,19 @@ class _P2PState extends State<P2P> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _refresh();
     _tabController = TabController(length: 2, vsync: this);
     final p2pBuyAdsProvider =
         Provider.of<P2PPostAdsProvider>(context, listen: false);
     p2pBuyAdsProvider.fetchP2PBuyAds();
+    p2pBuyAdsProvider.fetchP2PSellAds();
   }
 
   Future<void> _refresh() async {
     final p2pBuyAdsProvider =
         Provider.of<P2PPostAdsProvider>(context, listen: false);
     p2pBuyAdsProvider.fetchP2PBuyAds();
+    p2pBuyAdsProvider.fetchP2PSellAds();
   }
 
   @override
@@ -61,9 +64,17 @@ class _P2PState extends State<P2P> with SingleTickerProviderStateMixin {
         ),
         body: TabBarView(
           controller: _tabController,
-          children: const [
-            Center(child: BuyList()),
-            Center(child: SellList()),
+          children: [
+            RefreshIndicator(
+              onRefresh: _refresh,
+              color: kPrimaryColor,
+              child: const BuyList(),
+            ),
+            RefreshIndicator(
+              onRefresh: _refresh,
+              color: kPrimaryColor,
+              child: const SellList(),
+            ),
           ],
         ),
       ),

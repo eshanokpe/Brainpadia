@@ -103,7 +103,7 @@ class Providers extends ChangeNotifier {
           headers: {"Content-Type": "application/json"}, body: payload);
       // Handle login response
       print(response.statusCode);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200) { 
         Map<String, dynamic> userProfile = jsonDecode(response.body);
         var message = userProfile["response"]["message"];
         int profileId = userProfile['userProfile']['profileId'];
@@ -146,6 +146,13 @@ class Providers extends ChangeNotifier {
         _loggedInStatus = Status.LoggedIn;
 
         Provider.of<UserProvider>(context, listen: false).setUser(authUser);
+        final p2pAdsProvider =
+            Provider.of<P2PPostAdsProvider>(context, listen: false);
+        p2pAdsProvider.fetchP2PUserBuyAds();
+        p2pAdsProvider.fetchP2PUserSellAds();
+        p2pAdsProvider.fetchP2PBuyAds();
+        p2pAdsProvider.fetchP2PSellAds();
+
         setLoading(false);
         notifyListeners();
         Navigator.pushReplacement(

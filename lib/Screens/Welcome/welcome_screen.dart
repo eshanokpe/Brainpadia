@@ -1,3 +1,4 @@
+import 'package:brainepadia/constants.dart';
 import 'package:brainepadia/models/user.dart';
 import 'package:brainepadia/providers/user_provider.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,9 @@ class MobileWelcomeScreen extends StatelessWidget {
     return Column(
       // mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        const SizedBox(height: defaultPadding * 5),
         const WelcomeImage(),
+        const SizedBox(height: defaultPadding * 3),
         Row(
           children: const [
             Spacer(),

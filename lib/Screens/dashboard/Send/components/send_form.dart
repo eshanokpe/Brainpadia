@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
@@ -57,8 +60,6 @@ class _SendFormState extends State<SendForm> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: defaultPadding,
-                    horizontal:
-                        defaultPadding * 0.5, // Adjust horizontal padding
                   ),
                   child: OtpTextField(
                     textStyle: const TextStyle(fontSize: 17),
@@ -86,10 +87,14 @@ class _SendFormState extends State<SendForm> {
                       ? null
                       : () async {
                           print('sentOTP');
-                          //final getuser =
-                          //Provider.of<UserProvider>(context).getuser;
-                          //await userState.sendOTP(getuser.email!, context);
-                          await userState.sendGetOTP();
+                          try {
+                            print('sentOTP');
+                            await userState.sendGetOTP();
+                          } catch (error) {
+                            // Handle error or display a message to the user
+                            Fluttertoast.showToast(
+                                msg: 'Error while sending OTP: $error');
+                          }
                         },
                   child: userState.getLoading
                       ? const CircularProgressIndicator(
@@ -112,18 +117,24 @@ class _SendFormState extends State<SendForm> {
                   onPressed: userState.sendgetLoading
                       ? null
                       : () async {
-                          print('otpCode:$otpCode');
-                          if (otpCode.length != 6 || otpCode.isEmpty) {
-                            Fluttertoast.showToast(msg: 'Enter OTP Code');
-                            return;
-                          } else {
-                            await userState.oTPSendVerification(
-                                context,
-                                otpCode,
-                                recipient,
-                                walletAddress,
-                                amount,
-                                feeValue);
+                          try {
+                            print('otpCode:$otpCode');
+                            if (otpCode.length != 6 || otpCode.isEmpty) {
+                              Fluttertoast.showToast(msg: 'Enter OTP Code');
+                              return;
+                            } else {
+                              await userState.oTPSendVerification(
+                                  context,
+                                  otpCode,
+                                  recipient,
+                                  walletAddress,
+                                  amount,
+                                  feeValue);
+                            }
+                          } catch (error) {
+                            // Handle error or display a message to the user
+                            Fluttertoast.showToast(
+                                msg: 'Error during OTP verification: $error');
                           }
                         },
                   child: userState.sendgetLoading
@@ -152,109 +163,157 @@ class _SendFormState extends State<SendForm> {
     );
   }
 
+  String barcode = "";
+  Future<void> scanQRCode() async {
+    // try {
+    //   ScanResult result = await BarcodeScanner.scan(); // Scanning QR code
+
+    //   setState(() {
+    //     recipientController.text = result.rawContent ?? '';
+    //   });
+    // } catch (e) {
+    //   // Handle exception or error, if any
+    //   print('Error while scanning QR code: $e');
+    // }
+    try {
+      var barcode = await BarcodeScanner.scan();
+      setState(() {
+        recipientController.text = barcode.rawContent ?? '';
+      });
+      setState(() => this.barcode = barcode.rawContent);
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.cameraAccessDenied) {
+        setState(() {
+          barcode = 'No camera permission!';
+        });
+      } else {
+        setState(() => barcode = 'Unknown error: $e');
+      }
+    } on FormatException {
+      setState(() => barcode = 'Nothing captured.');
+    } catch (e) {
+      setState(() => barcode = 'Unknown error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userState = Provider.of<Providers>(context);
     final getuser = Provider.of<UserProvider>(context).getuser;
-    final feeValue = Provider.of<UserProvider>(context).profileFee;
+
+    //final feeValue = Provider.of<UserProvider>(context).profileFee;
     final getWallet = Provider.of<UserProvider>(context).getuserWallet;
     final walletAddress = getWallet.walletAddress!;
 
     return Form(
-      child: Column(
-        children: [
-          TextFormField(
-            keyboardType: TextInputType.name,
-            textInputAction: TextInputAction.next,
-            cursorColor: kPrimaryColor,
-            controller: recipientController,
-            decoration: const InputDecoration(
-              hintText: "Recipient Account",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: defaultPadding),
-            child: TextFormField(
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
+      child: Consumer<UserProvider>(builder: (context, transactionData, _) {
+        final feeValue = transactionData.profileFee;
+        return Column(
+          children: [
+            TextFormField(
+              keyboardType: TextInputType.name,
+              textInputAction: TextInputAction.next,
               cursorColor: kPrimaryColor,
-              controller: amountController,
-              onChanged: _onAmountChanged,
-              decoration: const InputDecoration(
-                hintText: "Enter Amount",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide.none,
+              controller: recipientController,
+              decoration: InputDecoration(
+                  hintText: "Recipient Account",
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide.none,
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: scanQRCode,
+                    icon: const Icon(
+                      Icons
+                          .qr_code, // Replace this with the scan icon you'd like to use
+                      color: Colors.grey, // Adjust the color as needed
+                    ),
+                  )),
+            ),
+            Text(
+              barcode,
+              style: TextStyle(color: Colors.red),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: defaultPadding),
+              child: TextFormField(
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.done,
+                cursorColor: kPrimaryColor,
+                controller: amountController,
+                onChanged: _onAmountChanged,
+                decoration: const InputDecoration(
+                  hintText: "Enter Amount",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Text(
-                  'Fee: ',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  const Text(
+                    'Fee: ',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
-                Text(
-                  '${feeValue ?? '0.0'}',
-                  style: const TextStyle(
-                    color: walletpinkColor,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w400,
+                  Text(
+                    '${feeValue ?? '0.0'}',
+                    style: const TextStyle(
+                      color: walletpinkColor,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Hero(
-            tag: "login_btn",
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                primary: kPrimaryColor,
-                padding: const EdgeInsets.all(defaultPadding),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                ],
               ),
-              onPressed: userState.isLoading
-                  ? null
-                  : () async {
-                      if (recipientController.text.isEmpty ||
-                          amountController.text.isEmpty) {
-                        Fluttertoast.showToast(msg: 'Fill up all fields');
-                        return;
-                      }
+            ),
+            const SizedBox(height: 20),
+            Hero(
+              tag: "login_btn",
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  primary: kPrimaryColor,
+                  padding: const EdgeInsets.all(defaultPadding),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: userState.isLoading
+                    ? null
+                    : () async {
+                        if (recipientController.text.isEmpty ||
+                            amountController.text.isEmpty) {
+                          Fluttertoast.showToast(msg: 'Fill up all fields');
+                          return;
+                        }
 
-                      _showOTPDialog(
-                          context,
-                          getuser.email!,
-                          recipientController.text,
-                          walletAddress,
-                          amountController.text,
-                          feeValue.toString());
-                    },
-              child: userState.isLoading
-                  ? const CircularProgressIndicator(color: Color(0xFF9739E3))
-                  : const Text("Send"),
+                        _showOTPDialog(
+                            context,
+                            getuser.email!,
+                            recipientController.text,
+                            walletAddress,
+                            amountController.text,
+                            feeValue.toString());
+                      },
+                child: userState.isLoading
+                    ? const CircularProgressIndicator(color: Color(0xFF9739E3))
+                    : const Text("Send"),
+              ),
             ),
-          ),
-          const SizedBox(height: defaultPadding),
-          const SizedBox(height: defaultPadding),
-        ],
-      ),
+            const SizedBox(height: defaultPadding),
+            const SizedBox(height: defaultPadding),
+          ],
+        );
+      }),
     );
   }
 }

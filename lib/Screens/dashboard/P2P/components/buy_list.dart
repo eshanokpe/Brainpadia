@@ -1,3 +1,4 @@
+import 'package:brainepadia/Screens/dashboard/PostAds/viewPostAds/buydetailspostads_screen.dart';
 import 'package:brainepadia/constants.dart';
 import 'package:brainepadia/providers/P2PPostAdsProvider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -12,11 +13,11 @@ class BuyList extends StatelessWidget {
     return Container(
       color: const Color.fromARGB(31, 130, 130, 130),
       child: Consumer<P2PPostAdsProvider>(
-        builder: (context, p2pUserBuyAdsProvider, _) {
-          final p2pUserBuyAds = p2pUserBuyAdsProvider.p2pBuyAds;
+        builder: (context, p2pUserSellAdsProvider, _) {
+          final p2pUserSellAds = p2pUserSellAdsProvider.p2pSellAds;
 
-          if (p2pUserBuyAds.isEmpty) {
-            if (p2pUserBuyAdsProvider.isLoading) {
+          if (p2pUserSellAds.isEmpty) {
+            if (p2pUserSellAdsProvider.isLoading) {
               return const Center(child: CircularProgressIndicator());
             } else {
               return Center(
@@ -28,33 +29,32 @@ class BuyList extends StatelessWidget {
           }
 
           return ListView.builder(
-            itemCount: p2pUserBuyAds.length,
+            itemCount: p2pUserSellAds.length,
             itemBuilder: (context, index) {
-              final p2pBuyAd = p2pUserBuyAds.reversed.toList()[index];
-              final nickName = p2pBuyAd['profile']['nickName'] ??
-                  p2pBuyAd['profile']['fullName'];
-
-              final imageUrl = p2pBuyAd['profile']['imageUrl'];
-              final amount = p2pBuyAd['amount'];
-              final price = p2pBuyAd['price'];
-              final limitFrom = p2pBuyAd['limitFrom'];
-              final limitTo = p2pBuyAd['limitTo'];
-              final asset = p2pBuyAd['asset'];
-              final currency = p2pBuyAd['currency'];
-              final p2PBuyAdsId = p2pBuyAd['p2PBuyAdsId'];
+              final p2pSellAd = p2pUserSellAds.reversed.toList()[index];
+              final nickName = p2pSellAd['bankDetails']['profile']['nickName'];
+              final imageUrl = p2pSellAd['bankDetails']['profile']['imageUrl'];
+              final bankName = p2pSellAd['bankDetails']['bankName'];
+              final amount = p2pSellAd['amount'];
+              final price = p2pSellAd['price'];
+              final limitFrom = p2pSellAd['limitFrom'];
+              final limitTo = p2pSellAd['limitTo'];
+              final asset = p2pSellAd['asset'];
+              final currency = p2pSellAd['currency'];
+              final p2PSellAdsId = p2pSellAd['p2PBuyAdsId'];
 
               return GestureDetector(
                 onTap: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) {
-                  //       return BuyDetailsPostAds(
-                  //         p2PBuyAdsId: p2PBuyAdsId,
-                  //       );
-                  //     },
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return BuyDetailsPostAds(
+                          p2PBuyAdsId: p2PSellAdsId,
+                        );
+                      },
+                    ),
+                  );
                 },
                 child: Container(
                   padding: const EdgeInsets.all(8),
@@ -79,96 +79,88 @@ class BuyList extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Row(
                             children: [
-                              Row(
-                                children: [
-                                  imageUrl == null
-                                      ? const CircleAvatar(
-                                          radius: 10,
-                                          backgroundImage: AssetImage(
-                                              'assets/images/avatar.png'),
-                                        )
-                                      : CachedNetworkImage(
-                                          imageUrl: imageUrl!,
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  CircleAvatar(
-                                            radius: 15,
-                                            backgroundImage: imageProvider,
-                                          ),
-                                          placeholder: (context, url) =>
-                                              const CircleAvatar(
-                                            radius: 15,
-                                            backgroundColor: Colors
-                                                .grey, // Placeholder background color
-                                            child:
-                                                CircularProgressIndicator(), // Loading indicator
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              const CircleAvatar(
-                                            radius: 150,
-                                            backgroundColor: Colors
-                                                .grey, // Placeholder background color
-                                            child: Icon(Icons
-                                                .error), // Error icon or widget
-                                          ),
-                                        ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    nickName,
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
+                              imageUrl == null
+                                  ? const CircleAvatar(
+                                      radius: 10,
+                                      backgroundImage: AssetImage(
+                                          'assets/images/avatar.png'),
+                                    )
+                                  : CachedNetworkImage(
+                                      imageUrl: imageUrl!,
+                                      imageBuilder: (context, imageProvider) =>
+                                          CircleAvatar(
+                                        radius: 15,
+                                        backgroundImage: imageProvider,
+                                      ),
+                                      placeholder: (context, url) =>
+                                          const CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: Colors
+                                            .grey, // Placeholder background color
+                                        child:
+                                            CircularProgressIndicator(), // Loading indicator
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: Colors
+                                            .grey, // Placeholder background color
+                                        child: Icon(Icons
+                                            .error), // Error icon or widget
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Price:- ',
-                                    style: TextStyle(
-                                      color: palColor,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$price',
-                                    style: const TextStyle(
-                                      color: kPrimaryBlack,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(width: 10),
+                              Text(
+                                nickName,
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.black,
+                                ),
                               ),
                             ],
                           ),
-                          Column(
-                            children: [
-                              Container(
-                                alignment: Alignment.center,
-                                child: const Text('Buy',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.white,
-                                    )),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    color: Colors.green),
-                                width: 60,
-                                height: 30,
-                              )
-                            ],
-                          )
                         ],
                       ),
                       const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Price:-',
+                                style: TextStyle(
+                                  color: palColor,
+                                ),
+                              ),
+                              Text(
+                                '$price',
+                                style: const TextStyle(
+                                  color: kPrimaryBlack,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            child: const Text('Buy',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                )),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                color: Colors.green),
+                            width: 40,
+                            height: 20,
+                          )
+                        ],
+                      ),
                       const SizedBox(height: 5),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -275,21 +267,36 @@ class BuyList extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
                           Row(
                             children: [
                               const Text(
                                 'Amount: ',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                    color: kPrimaryBlack),
                               ),
                               Text(
                                 '\$${amount.toStringAsFixed(2).replaceAllMapped(new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                                 style: const TextStyle(
-                                    color: Color(
-                                      0xff828282,
-                                    ),
                                     fontWeight: FontWeight.w300,
-                                    fontSize: 14),
+                                    fontSize: 14,
+                                    color: kPrimaryBlack),
                               ),
                             ],
+                          ),
+                          Text(
+                            bankName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: 14,
+                                color: kPrimaryBlack),
                           ),
                         ],
                       ),

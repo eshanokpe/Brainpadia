@@ -9,7 +9,7 @@ class SellDetailsPostAds extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const TAppBar(showBackArrow: true, title: 'Sell Details'),
+      appBar: const TAppBar(showBackArrow: true, title: 'Sell Detail'),
     );
   }
 }

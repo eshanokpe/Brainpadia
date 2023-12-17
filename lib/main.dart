@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Future<User> getUserData() => UserPreferences().getUser();
- 
+
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Brainepadia Wallet',
@@ -74,7 +74,7 @@ class MyApp extends StatelessWidget {
         //home: const WelcomeScreen(),
         //home: authToken != null ? const Dashboard() : const LoginScreen(),
         home: FutureBuilder<User>(
-            future: getUserData(), 
+            future: getUserData(),
             builder: (context, snapshot) {
               switch (snapshot.connectionState) {
                 case ConnectionState.none:
@@ -86,6 +86,7 @@ class MyApp extends StatelessWidget {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else if (snapshot.data!.token == null) {
+                    //return WelcomeScreen(user: snapshot.data!);
                     return const LoginScreen();
                   } else {
                     UserPreferences().removeUser();

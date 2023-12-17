@@ -42,6 +42,7 @@ class _HomepageState extends State<Homepage> {
   }
 
   String? firstName;
+  double? balance;
   Future<void> _refresh() async {
     final p2pBuyAdsProvider =
         Provider.of<FetchBlockchain>(context, listen: false);
@@ -50,6 +51,7 @@ class _HomepageState extends State<Homepage> {
     p2pBuyAdsProvider.fetchNairaBalance(context);
     p2pBuyAdsProvider.fetchDollarBalance(context);
     firstName = context.read<UserProvider>().getuser.firstName!;
+    balance = Provider.of<Providers>(context).balance;
     await Future.wait([
       context.read<FetchBlockchain>().fetchDollarBalance(context),
       context.read<FetchBlockchain>().fetchNairaBalance(context),
@@ -67,7 +69,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     WalletModel getWallet = Provider.of<UserProvider>(context).getuserWallet;
-    final balance = Provider.of<Providers>(context).balance;
+    balance = Provider.of<Providers>(context).balance;
     var walletAddress = getWallet.walletAddress;
 
     return Scaffold(
@@ -78,7 +80,7 @@ class _HomepageState extends State<Homepage> {
           controller: _scrollController,
           slivers: [
             SliverAppBar(
-              expandedHeight: 315,
+              expandedHeight: 325,
               floating: false,
               pinned: true,
               titleSpacing: 0,
@@ -279,7 +281,7 @@ class _HomepageState extends State<Homepage> {
                             padding:
                                 const EdgeInsets.only(left: 16.0, right: 16),
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 InkWell(
                                   onTap: () {
@@ -292,78 +294,87 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                     );
                                   },
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                    padding: const EdgeInsets.only(
-                                        top: 8, bottom: 8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: kPrimaryColor,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.white,
-                                          spreadRadius: 0,
-                                          blurRadius: 0,
-                                          offset: Offset(0, 2),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.13,
+                                        padding: const EdgeInsets.only(
+                                            top: 8, bottom: 8),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: kPrimaryColor,
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.white,
+                                              spreadRadius: 0,
+                                              blurRadius: 0,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: const [
-                                        SizedBox(width: 30),
-                                        Icon(
-                                          Icons.send,
-                                          color: textColorWhite,
-                                          size: 24,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(
+                                              Icons.send,
+                                              color: textColorWhite,
+                                              size: 24,
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 10),
-                                        Text(
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Text(
                                           'Send',
                                           style: TextStyle(
                                             fontSize: 16,
-                                            color: textColorWhite,
+                                            color: palColor,
                                           ),
                                         ),
-                                        SizedBox(width: 30),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.3,
-                                  padding:
-                                      const EdgeInsets.only(top: 8, bottom: 8),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: kPrimaryColor,
-                                  ),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
-                                      SizedBox(width: 30),
-                                      Icon(
-                                        Icons.monetization_on,
-                                        color: textColorWhite,
-                                        size: 24,
                                       ),
-                                      SizedBox(width: 10),
-                                      Text(
-                                        'Withdraw',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: textColorWhite,
-                                        ),
-                                      ),
-                                      SizedBox(width: 30),
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 10),
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.13,
+                                      padding: const EdgeInsets.only(
+                                          top: 8, bottom: 8),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: kPrimaryColor,
+                                      ),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(
+                                            Icons.monetization_on,
+                                            color: textColorWhite,
+                                            size: 24,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        'Withdraw',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: palColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 InkWell(
                                   onTap: () {
                                     Navigator.push(
@@ -375,48 +386,50 @@ class _HomepageState extends State<Homepage> {
                                       ),
                                     );
                                   },
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.2,
-                                    padding: const EdgeInsets.only(
-                                        top: 8, bottom: 8),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: kPrimaryColor,
-                                      boxShadow: const [
-                                        BoxShadow(
-                                          color: Colors.white,
-                                          spreadRadius: 0,
-                                          blurRadius: 0,
-                                          offset: Offset(0, 2),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width *
+                                                0.13,
+                                        padding: const EdgeInsets.only(
+                                            top: 8, bottom: 8),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: kPrimaryColor,
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Colors.white,
+                                              spreadRadius: 0,
+                                              blurRadius: 0,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: const [
-                                        SizedBox(width: 30),
-                                        // Image.asset(
-                                        //   'assets/icons/p2p.png',
-                                        //   height: 25,
-                                        // ),
-                                        Icon(
-                                          Icons.people_alt,
-                                          size: 24,
-                                          color: Colors.white,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: const [
+                                            Icon(
+                                              Icons.people_alt,
+                                              size: 24,
+                                              color: Colors.white,
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 10),
-                                        Text(
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Text(
                                           'P2P',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 16,
-                                            color: textColorWhite,
+                                            color: palColor,
                                           ),
                                         ),
-                                        const SizedBox(width: 30),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],

@@ -197,22 +197,31 @@ class UserProvider with ChangeNotifier {
           await http.get(feeUrl, headers: {"Authorization": 'Bearer $tokens'});
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        Fluttertoast.showToast(msg: '${data["message"]}');
+        handleSuccess(jsonDecode(response.body));
       } else {
-        setgetLoading(false);
-        Map<String, dynamic> data = jsonDecode(response.body);
-        Fluttertoast.showToast(msg: '${data["message"]}');
-        //throw Exception('Failed $data');
-        print('data:$data["message"]');
+        handleFailure(jsonDecode(response.body));
       }
     } catch (error) {
-      Fluttertoast.showToast(msg: 'Error: $error');
-      print("OTP code validation failed. Error: $error");
-      // Handle OTP code validation exception
+      handleError(error);
     } finally {
       setgetLoading(false);
     }
+  }
+
+  void handleSuccess(Map<String, dynamic> data) {
+    Fluttertoast.showToast(msg: '${data["message"]}');
+  }
+
+  void handleFailure(Map<String, dynamic> data) {
+    Fluttertoast.showToast(msg: '${data["message"]}');
+    // throw Exception('Failed $data');
+    print('data:${data["message"]}');
+  }
+
+  void handleError(dynamic error) {
+    Fluttertoast.showToast(msg: 'Error: $error');
+    print("OTP code validation failed. Error: $error");
+    // Handle OTP code validation exception
   }
 
   void sendLoading(bool value) {
@@ -232,17 +241,8 @@ class UserProvider with ChangeNotifier {
       sendLoading(true);
       notifyListeners();
       var email = user.email;
-      print('email:$email');
-      print('recipient:$recipient');
-      print('walletAddress:$walletAddress');
-      print('amount:$amount');
-      print('feeValue:$fee');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      var tokens = prefs.getString('token');
-
-      print("otpCodeotp:$otp");
+      var tokens = (await SharedPreferences.getInstance()).getString('token');
       var validateOTPUrl = Uri.parse(APIEndpoints.postOTP);
-      // Create JSON payload for OTP code validation request
       var payload = jsonEncode({
         "email": email,
         "otp": otp,
@@ -253,24 +253,16 @@ class UserProvider with ChangeNotifier {
       var sendCoinUrl = Uri.parse(
           "$baseUrl/BPCoin/send_coin?recipientAddress=$recipient&senderAddress=$walletAddress&amount=$amount&fee=$fee");
 
-      print('${response.statusCode}');
       if (response.statusCode == 400) {
-        sendLoading(false);
-        notifyListeners();
         var responsesendCoin = await http
             .get(sendCoinUrl, headers: {"Authorization": 'Bearer $tokens'});
-        print('sendResponse:${responsesendCoin.statusCode}');
-        Map<String, dynamic> data = jsonDecode(responsesendCoin.body);
-        print('senddata:${data}');
 
         if (responsesendCoin.statusCode == 200) {
-          Map<String, dynamic> data = jsonDecode(responsesendCoin.body);
-          print("Success: ${data["message"]}");
-          print('${responsesendCoin.statusCode}');
-          String walletId = data["data"]["recipient"];
-          num amount = data["data"]["amount"];
-          String timeStamp = data["data"]["timeStamp"];
-          Fluttertoast.showToast(msg: '${data["message"]}');
+          Map<String, dynamic> sendCoinData = jsonDecode(responsesendCoin.body);
+          String walletId = sendCoinData["data"]["recipient"];
+          num amount = sendCoinData["data"]["amount"];
+          String timeStamp = sendCoinData["data"]["timeStamp"];
+          Fluttertoast.showToast(msg: '${sendCoinData["message"]}');
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -281,22 +273,17 @@ class UserProvider with ChangeNotifier {
               ));
           //Fluttertoast.showToast(msg: '${data["message"]}');ss
 
-          print("Success: ${data["message"]}");
+          print("Success: ${sendCoinData["message"]}");
         } else {
-          sendLoading(false);
-          notifyListeners();
-          Map<String, dynamic> data = jsonDecode(responsesendCoin.body);
-          print('data:${responsesendCoin.statusCode}');
+          Map<String, dynamic> errorData = jsonDecode(responsesendCoin.body);
 
           dialogBox.information(
-              context, '${data['status']}', '${data["message"]}');
+              context, '${errorData['status']}', '${errorData["message"]}');
         }
       } else if (response.statusCode == 401) {
-        sendLoading(false);
-        notifyListeners();
-        Map<String, dynamic> data = jsonDecode(response.body);
-        Fluttertoast.showToast(msg: '${data["message"]}');
-        print("Error: ${data["message"]}");
+        Map<String, dynamic> errorData = jsonDecode(response.body);
+        Fluttertoast.showToast(msg: '${errorData["message"]}');
+        print("Error: ${errorData["message"]}");
       }
     } catch (error) {
       Fluttertoast.showToast(msg: 'Error: $error');
@@ -432,7 +419,7 @@ class UserProvider with ChangeNotifier {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      print("_getBankData:$data");
+      //print("_getBankData:$data");
       _getBankData = data.map((item) => item as Map<String, dynamic>).toList();
       notifyListeners();
     } else {

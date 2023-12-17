@@ -10,7 +10,7 @@ import 'viewbankDetails.dart';
 
 class GetBankDetails extends StatelessWidget {
   GetBankDetails({Key? key}) : super(key: key);
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(

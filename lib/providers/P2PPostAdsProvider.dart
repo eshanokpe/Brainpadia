@@ -124,7 +124,7 @@ class P2PPostAdsProvider with ChangeNotifier {
   Future<void> fetchP2PSellAds() async {
     final token = user!.token;
     //print("token$token");
-    const url = '$baseUrl/P2PBuyAds/get_all_p2pbuyads';
+    const url = '$baseUrl/P2PSellAds/get_all_p2psellads';
 
     try {
       final response = await Dio().get(
@@ -223,7 +223,7 @@ class P2PPostAdsProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         List<dynamic> sellbankData = response.data;
 
-        //print("sellbankData:$sellbankData");
+        print("sellbankData:$sellbankData");
         // _sellbanksdata = sellbankData.map((bank) => Bank.fromJson(bank)).toList();
         //Fluttertoast.showToast(msg: 'Correct111');
         _p2pUserSellAds =

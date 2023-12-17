@@ -31,6 +31,7 @@ class _PostadsBuyFormState extends State<PostadsBuyForm> {
   @override
   void dispose() {
     super.dispose();
+    
   }
 
   void _onAmountChanged(String value) {
@@ -169,53 +170,6 @@ class _PostadsBuyFormState extends State<PostadsBuyForm> {
                   ),
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: defaultPadding, horizontal: defaultPadding),
-              child:
-                  Consumer<UserProvider>(builder: (context, userProvider, _) {
-                return userProvider.getBankData.isEmpty
-                    ? Container(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                            top: height * .01,
-                            left: width * .08,
-                          ),
-                          child: const Text("Please put your bank details",
-                              style: TextStyle(color: Colors.red)),
-                        ),
-                      )
-                    : Container(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Color.fromARGB(255, 196, 196, 196),
-                            )),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            value: getbankId,
-                            hint: const Text('Select bank'),
-                            items: userProvider.getBankData.map((item) {
-                              return DropdownMenuItem(
-                                child: Text(
-                                    '${item['bankName']}(${item['accountName']})'),
-                                value: item['bankDetailsId'].toString(),
-                              );
-                            }).toList(),
-                            onChanged: (value) async {
-                              setState(() {
-                                getbankId = value as String;
-                                print('bankDetailsId:$getbankId');
-                              });
-                            },
-                          ),
-                        ),
-                      );
-              }),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -402,7 +356,6 @@ class _PostadsBuyFormState extends State<PostadsBuyForm> {
 
                               await userState.sendBuyPostAds(
                                 context,
-                                getbankId!,
                                 selectedAsset,
                                 selectedCurrency,
                                 amountController.text,

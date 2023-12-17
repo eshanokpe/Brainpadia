@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:brainepadia/Screens/dashboard/PostAds/addpostads_screen.dart';
 import 'package:brainepadia/constants.dart';
 import 'package:brainepadia/providers/P2PPostAdsProvider.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'editSellPostads.dart';
+import 'addpostads_screen.dart';
 import 'viewPostAds/viewbuypostads_screen.dart';
 import 'viewPostAds/viewsellpostads_screen.dart';
 
@@ -24,12 +22,7 @@ class _PostAdsState extends State<PostAds> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-        length: 2,
-        vsync: this,
-        initialIndex:
-            widget.initialTabIndex); // Use the received initialTabIndex
-
+    _tabController = TabController(length: 2, vsync: this);
     final p2pBuyAdsProvider =
         Provider.of<P2PPostAdsProvider>(context, listen: false);
     p2pBuyAdsProvider.fetchP2PUserBuyAds();
@@ -37,69 +30,77 @@ class _PostAdsState extends State<PostAds> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _refresh() async {
-    final p2pBuyAdsProvider =
-        Provider.of<P2PPostAdsProvider>(context, listen: false);
-    p2pBuyAdsProvider.fetchP2PUserBuyAds();
-    p2pBuyAdsProvider.fetchP2PUserSellAds();
+    // Add your refresh logic here
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      // Update the UI after refreshing
+      final p2pBuyAdsProvider =
+          Provider.of<P2PPostAdsProvider>(context, listen: false);
+      p2pBuyAdsProvider.fetchP2PUserBuyAds();
+      p2pBuyAdsProvider.fetchP2PUserSellAds();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: _refresh,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: kPrimaryColor,
-          elevation: 0,
-          title: const Text(
-            'My Ads',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: kPrimaryColor,
+        elevation: 1,
+        title: const Text(
+          'My Ads',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const AddPostAds();
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
         ),
-        body: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TabBar(
-                isScrollable: true,
-                labelPadding: EdgeInsets.only(left: 20, right: 20),
-                labelColor: kPrimaryBlack,
-                unselectedLabelColor: Colors.grey,
-                controller: _tabController,
-                indicator: CircleTabIndicator(color: Colors.black, radius: 4),
-                tabs: const [Tab(text: 'Buy'), Tab(text: 'Sell')],
-              ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.add,
+              color: Colors.white,
             ),
-            Expanded(
-              // Use Expanded to occupy remaining space
-              child: TabBarView(
-                controller: _tabController,
-                children: const [ViewBuyPostAds(), ViewSellPostAds()],
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const AddPostAds();
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: TabBar(
+            isScrollable: true,
+            labelPadding: EdgeInsets.only(left: 20, right: 20),
+            labelColor: kPrimaryBlack,
+            unselectedLabelColor: Colors.grey,
+            controller: _tabController,
+            indicator: CircleTabIndicator(color: Colors.black, radius: 4),
+            tabs: const [Tab(text: 'Buy'), Tab(text: 'Sell')],
+          ),
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              RefreshIndicator(
+                color: kPrimaryColor,
+                onRefresh: _refresh,
+                child: ViewBuyPostAds(),
               ),
-            ),
-          ],
+              RefreshIndicator(  
+                onRefresh: _refresh,
+                color: kPrimaryColor,
+                child: ViewSellPostAds(),
+              ),
+            ],
+          ),
         ),
       ),
     );

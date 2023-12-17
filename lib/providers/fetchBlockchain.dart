@@ -142,7 +142,6 @@ class FetchBlockchain with ChangeNotifier {
 
   Future<void> sendBuyPostAds(
       BuildContext context,
-      String getbankId,
       String asset,
       String currency,
       String amount,
@@ -165,7 +164,6 @@ class FetchBlockchain with ChangeNotifier {
       "limitFrom": limitFrom,
       "limitTo": limitTo,
       "profileId": profileId,
-      "bankDetailsId": getbankId
     };
 
     try {
@@ -192,7 +190,7 @@ class FetchBlockchain with ChangeNotifier {
             builder: (context) {
               return const PostAds(
                   initialTabIndex:
-                      1); // Pass the initialTabIndex as an argument
+                      0); // Pass the initialTabIndex as an argument
             },
           ),
         );
@@ -257,7 +255,7 @@ class FetchBlockchain with ChangeNotifier {
             builder: (context) {
               return const PostAds(
                   initialTabIndex:
-                      0); // Pass the initialTabIndex as an argument
+                      1); // Pass the initialTabIndex as an argument
             },
           ),
         );
